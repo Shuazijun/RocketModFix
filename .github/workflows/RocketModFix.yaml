@@ -77,21 +77,21 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Rocket.AutoInstaller
-          path: "./Rocket.AutoInstaller/bin/Release/net461/linux-x64/Rocket.AutoInstaller/"
+          path: "./Rocket.AutoInstaller/bin/Release/net481/linux-x64/Rocket.AutoInstaller/"
           if-no-files-found: error
           
       - name: Upload Rocket.Unturned.Module
         uses: actions/upload-artifact@v7
         with:
           name: Rocket.Unturned.Module
-          path: "./Rocket.Unturned/bin/Release/net461/linux-x64/Rocket.Unturned/"
+          path: "./Rocket.Unturned/bin/Release/net481/linux-x64/Rocket.Unturned/"
           if-no-files-found: error
 
       - name: Zip Rocket.AutoInstaller artifacts
-        run: "cd ./Rocket.AutoInstaller/bin/Release/net461/linux-x64/Rocket.AutoInstaller && zip -qq -r ./Rocket.AutoInstaller.zip *"
+        run: "cd ./Rocket.AutoInstaller/bin/Release/net481/linux-x64/Rocket.AutoInstaller && zip -qq -r ./Rocket.AutoInstaller.zip *"
 
       - name: Zip Rocket.Unturned artifacts
-        run: "cd ./Rocket.Unturned/bin/Release/net461/linux-x64/Rocket.Unturned && zip -qq -r ./Rocket.Unturned.Module.zip *"
+        run: "cd ./Rocket.Unturned/bin/Release/net481/linux-x64/Rocket.Unturned && zip -qq -r ./Rocket.Unturned.Module.zip *"
 
       - name: Create Release
         if: github.event_name == 'create' && github.event.ref_type == 'tag'
@@ -100,8 +100,8 @@ jobs:
           name: RocketModFix Release v${{ steps.auto-installer-build.outputs.version }}
           tag: ${{ steps.auto-installer-build.outputs.version }}
           artifacts: |
-            ./Rocket.AutoInstaller/bin/Release/net461/linux-x64/Rocket.AutoInstaller/Rocket.AutoInstaller.zip
-            ./Rocket.Unturned/bin/Release/net461/linux-x64/Rocket.Unturned/Rocket.Unturned.Module.zip
+            ./Rocket.AutoInstaller/bin/Release/net481/linux-x64/Rocket.AutoInstaller/Rocket.AutoInstaller.zip
+            ./Rocket.Unturned/bin/Release/net481/linux-x64/Rocket.Unturned/Rocket.Unturned.Module.zip
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: ${{ steps.auto-installer-build.outputs.is_prerelease }}
           allowUpdates: true

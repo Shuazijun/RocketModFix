@@ -155,3 +155,50 @@ On the 2nd of June 2020 fr34kyn01535 requested the fork be rebranded to help dis
 [badge_RocketModFix.Rocket.Core]: https://img.shields.io/nuget/v/RocketModFix.Rocket.Core?label=RocketModFix.Rocket.Core&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FRocketModFix.Rocket.Core
 [nuget_package_RocketModFix.Rocket.Unturned]: https://www.nuget.org/packages/RocketModFix.Rocket.Unturned
 [badge_RocketModFix.Rocket.Unturned]: https://img.shields.io/nuget/v/RocketModFix.Rocket.Unturned?label=RocketModFix.Rocket.Unturned&link=https%3A%2F%2Fwww.nuget.org%2Fpackages%2FRocketModFix.Rocket.Unturned
+
+---
+
+## 阶段概览（本地开发：net481 升级）
+
+- **目标**：将 .NET Framework 目标从 `net461` 升级到 `net481`（4.8.1）
+- **完成状态**：已完成，Release 构建通过（0 错误）
+- **变更范围**：
+  - 项目：`Rocket.API`、`Rocket.Core`、`Rocket.Core.Tests`、`Rocket.Unturned`、`Rocket.Unturned.Launcher`、`Rocket.AutoInstaller`
+  - 共享配置：`props/SharedProjectProps.props`
+  - CI：`.github/workflows/*.yaml`、`.github/actions/project-build/action.yaml`、`.github/actions/compatibility-check/action.yml`
+
+## 接口与钩子清单
+
+- 无 API/接口变更；仅 TFM 与构建路径调整
+- `Microsoft.NETFramework.ReferenceAssemblies`（`props/SharedProjectProps.props`）：为 `net481` 提供跨平台引用程序集
+
+## 修复方法清单
+
+| 问题 | 根因 | 策略 | 修改点 |
+|------|------|------|--------|
+| `net461` EOL | 4.6.1 已停止支持 | 升级到 `net481` | 全部 `.csproj` 的 `TargetFramework(s)` |
+| AutoInstaller 编译失败 | `net481` 未隐式引用 `System.IO.Compression` | 显式添加程序集引用 | `Rocket.AutoInstaller.csproj` |
+| Linux CI 缺引用程序集 | CI 仅安装 net48 refs | 改为安装 net481 refs | `.github/actions/project-build/action.yaml` |
+| CI 产物路径错误 | 输出目录随 TFM 变化 | `net461` → `net481` 全局替换 | workflows / actions |
+
+## 注意事项与风险
+
+- **插件兼容性**：旧插件 targeting `net461` 通常仍可加载（4.x 运行时向前兼容），但建议在 Unturned 服务器实测
+- **Mono 运行时**：Unturned 服务器使用 Mono，需确认 Mono 对 net481 程序集的支持
+- **Breaking changes detector**：CI 兼容性检查基准需与上一 release 对比，首次升级可能触发 API diff 告警
+- **不建议**：在未测试前推送到上游；此为本地 fork 改动
+
+## 验证与回归
+
+- **已验证**：`dotnet build Rocket.Unturned.sln -c Release` — 通过（0 错误，既有 nullable 警告）
+- **未覆盖**：Unturned 实机加载、旧插件回归、CI compatibility-check 流水线
+
+## AI续写上下文
+
+- **当前状态**：本地 fork，`net481;netstandard2.1` 多目标，构建可用
+- **下一阶段待办**：
+  1. Unturned 服务器部署实测
+  2. 旧 Rocket 插件（AviRockets / uScript / OpenMod）回归
+  3. 运行 CI compatibility-check 确认无 breaking API 变更
+  4. 视需要更新安装文档中的 Framework 版本说明
+- **关键路径**：`Rocket.Unturned.sln`、`props/SharedProjectProps.props`、输出目录 `bin/Release/net481/`

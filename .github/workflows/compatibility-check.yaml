@@ -52,9 +52,9 @@ jobs:
           
           REM Define list of required assemblies
           set "assemblies="
-          set "assemblies=%assemblies%Rocket\Rocket.API\bin\Release\net461\Rocket.API.dll "
-          set "assemblies=%assemblies%Rocket\Rocket.Core\bin\Release\net461\Rocket.Core.dll "
-          set "assemblies=%assemblies%Rocket.Unturned\bin\Release\net461\Rocket.Unturned.dll "
+          set "assemblies=%assemblies%Rocket\Rocket.API\bin\Release\net481\Rocket.API.dll "
+          set "assemblies=%assemblies%Rocket\Rocket.Core\bin\Release\net481\Rocket.Core.dll "
+          set "assemblies=%assemblies%Rocket.Unturned\bin\Release\net481\Rocket.Unturned.dll "
           set "assemblies=%assemblies%original-repo\Rocket\Rocket.API\bin\Release\Rocket.API.dll "
           set "assemblies=%assemblies%original-repo\Rocket\Rocket.Core\bin\Release\Rocket.Core.dll "
           set "assemblies=%assemblies%original-repo\Rocket.Unturned\bin\Release\Rocket.Unturned.dll"
@@ -82,11 +82,11 @@ jobs:
           
           apicompat ^
             --left ./original-repo/Rocket/Rocket.API/bin/Release/Rocket.API.dll ^
-            --right ./Rocket/Rocket.API/bin/Release/net461/Rocket.API.dll ^
+            --right ./Rocket/Rocket.API/bin/Release/net481/Rocket.API.dll ^
             --left ./original-repo/Rocket/Rocket.Core/bin/Release/Rocket.Core.dll ^
-            --right ./Rocket/Rocket.Core/bin/Release/net461/Rocket.Core.dll ^
+            --right ./Rocket/Rocket.Core/bin/Release/net481/Rocket.Core.dll ^
             --left ./original-repo/Rocket.Unturned/bin/Release/Rocket.Unturned.dll ^
-            --right ./Rocket.Unturned/bin/Release/net461/Rocket.Unturned.dll ^
+            --right ./Rocket.Unturned/bin/Release/net481/Rocket.Unturned.dll ^
             --generate-suppression-file ^
             --suppression-output-file ./generated-api-suppressions.xml
           
@@ -105,11 +105,11 @@ jobs:
           # Run apicompat and capture output directly to variables
           $output = & apicompat @(
               "--left", "./original-repo/Rocket/Rocket.API/bin/Release/Rocket.API.dll",
-              "--right", "./Rocket/Rocket.API/bin/Release/net461/Rocket.API.dll",
+              "--right", "./Rocket/Rocket.API/bin/Release/net481/Rocket.API.dll",
               "--left", "./original-repo/Rocket/Rocket.Core/bin/Release/Rocket.Core.dll",
-              "--right", "./Rocket/Rocket.Core/bin/Release/net461/Rocket.Core.dll",
+              "--right", "./Rocket/Rocket.Core/bin/Release/net481/Rocket.Core.dll",
               "--left", "./original-repo/Rocket.Unturned/bin/Release/Rocket.Unturned.dll",
-              "--right", "./Rocket.Unturned/bin/Release/net461/Rocket.Unturned.dll",
+              "--right", "./Rocket.Unturned/bin/Release/net481/Rocket.Unturned.dll",
               "--suppression-file", ".github\workflows\api-suppressions.xml"
           ) 2>&1
           
