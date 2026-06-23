@@ -1,36 +1,43 @@
-# Contributing
+# 参与贡献
 
-We're thrilled to have you here! Feel free to create pull requests (PRs) and open issues - your contributions are valuable to us!
+欢迎提交 Pull Request 与 Issue，你的贡献对我们很有价值。
 
-## Why We Use Issues
-Before you dive into making changes, consider creating an [issue][issues_url] or discussions on our [discord server][discordserver_url] first. Here's why:
+## 为何先开 Issue
 
-- Avoid Duplicate Work: Someone might already be working on a similar update. Checking issues prevents duplication of effort.
-- Collaborative Problem Solving: Other contributors might have valuable insights or alternative solutions. Discussing changes beforehand can lead to better implementations.
-- Save Your Time: Avoid working on updates that might not align with the project's direction. Consult with others to ensure your efforts are fruitful.
+在动手改代码前，建议先在 [Issues](https://github.com/Shuazijun/RocketModFix/issues) 或 [Discord](https://discord.gg/z6VM7taWeG) 讨论：
 
-## Guidelines for Contributors
+- **避免重复劳动**：他人可能已在处理相同问题。
+- **方案对齐**：讨论有助于找到更合适的实现方式。
+- **节省时间**：确保改动方向与项目目标一致。
 
-Follow these guidelines to make our work smoother and faster, otherwise your change might not be accepted:
+## 贡献者须知
 
-1. **Check for Compatibility**:
-   - Does your change break backward compatibility?
-   - If it does then your change might not accepted, keep it compatible with old versions.
+请尽量遵守以下原则，否则改动可能无法合并：
 
-2. **Ensure Broad Usability**:
-   - Will your changes work with other versions of Rocket or older versions, or if other Rocket for example [LDM][ldm_github_repository] installed but your edited version of RocketModFix is not installed?
-   - If not, your change may not be accepted as it could cause problems such as breaking changes.
+1. **向后兼容**
+   - 改动是否会破坏现有插件或旧版 Rocket 的兼容性？
+   - 若破坏兼容，通常不予接受。
 
-3. **Test Your Changes**:
-   - Have you tested your change locally or in a test environment?
-   - If not, test it to confirm it works as expected.
+2. **适用范围**
+   - 改动是否适用于不同 Unturned / Rocket 版本，以及仅安装 LDM 而未安装本 fork 的环境？
+   - 若会导致其他环境异常，可能无法合并。
 
-4. **Keep Things Simple**:
-	- Do you keep things simple?
-	- If not, try to keep things simple, for example: "Don't try to make things/code unique, hard, complex, etc, use and do simple and working solutions for the issue, no need to show yourself as a hulk.".
+3. **充分测试**
+   - 是否在本地或测试服务器上验证？
+   - 专用服务器（Windows U3DS / Linux）与常见旧插件建议至少冒烟测试。
 
-Keep these points in mind to help everyone use RocketModFix without issues.
+4. **保持简单**
+   - 优先采用最小、可维护的修复，避免过度设计。
 
-[discordserver_url]: https://discord.gg/z6VM7taWeG
-[issues_url]: https://github.com/RocketModFix/RocketModFix/issues
-[ldm_github_repository]: https://github.com/SmartlyDressedGames/Legally-Distinct-Missile
+## 文档语言约定（本 fork）
+
+| 文档 | 语言 | 说明 |
+|------|------|------|
+| `README.md` | 简体中文 | 面向服务器管理员与玩家 |
+| `CONTRIBUTING.md` | 简体中文 | 本文件 |
+| `Rocket.AutoInstaller/README.md` | 简体中文 | 自动安装器说明 |
+| `Module/InstallationGuides/Readme_ZH.txt` 等 | 多语言 | 随模块发布的安装摘要 |
+| `Rocket/docs/` | 英文 | 上游插件 API 文档，保持英文 |
+| `Module/RuntimeLibs/README.md` | 英文 | 运行时库技术说明 |
+
+感谢你的贡献。

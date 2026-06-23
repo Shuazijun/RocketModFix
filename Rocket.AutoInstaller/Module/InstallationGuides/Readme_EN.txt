@@ -1,9 +1,9 @@
 Rocket.AutoInstaller For Unturned
 ---------------------------------
 
-GitHub: https://github.com/RocketModFix/RocketModFix/Rocket.AutoInstaller
+GitHub: https://github.com/Shuazijun/RocketModFix
 
-For latest downloads, visit: https://github.com/RocketModFix/RocketModFix/releases.
+For latest downloads, visit: https://github.com/Shuazijun/RocketModFix/releases.
 
 Join our Discord: https://discord.gg/z6VM7taWeG
 
@@ -14,4 +14,4 @@ Delete "Rocket.Unturned" folder from /Unturned/Modules (if you still have Rocket
 
 Copy the "Rocket.AutoInstaller" folder to /Unturned/Modules (copy the folder, not it's content, and if its asks to Replace the existing files then press to replace them).
 
-For more, visit: https://github.com/RocketModFix/RocketModFix?tab=readme-ov-file#auto-installer-new-way
+For more, visit: https://github.com/Shuazijun/RocketModFix#auto-installer

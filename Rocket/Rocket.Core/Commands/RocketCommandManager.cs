@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Collections.ObjectModel;
@@ -19,11 +19,11 @@ namespace Rocket.Core.Commands
     {
         private readonly List<RegisteredRocketCommand> commands = new List<RegisteredRocketCommand>();
         internal List<RocketCommandCooldown> cooldown = new List<RocketCommandCooldown>();
-        public ReadOnlyCollection<RegisteredRocketCommand> Commands { get; internal set; }
-        private XMLFileAsset<RocketCommands> commandMappings;
+        public ReadOnlyCollection<RegisteredRocketCommand> Commands { get; internal set; } = null!;
+        private XMLFileAsset<RocketCommands> commandMappings = null!;
 
         public delegate void ExecuteCommand(IRocketPlayer player, IRocketCommand command, ref bool cancel);
-        public event ExecuteCommand OnExecuteCommand;
+        public event ExecuteCommand OnExecuteCommand = null!;
 
         internal void Reload()
         {
@@ -45,7 +45,7 @@ namespace Rocket.Core.Commands
             checkDuplicateCommandMappings();
         }
 
-        private void checkDuplicateCommandMappings(string classname = null) {
+        private void checkDuplicateCommandMappings(string? classname = null) {
             foreach (CommandMapping mapping in (classname == null) ? commandMappings.Instance.CommandMappings : commandMappings.Instance.CommandMappings.Where(cm => cm.Class == classname))
             {
                 string n = mapping.Name.ToLower();
@@ -73,15 +73,16 @@ namespace Rocket.Core.Commands
             commandMappings.Save();
         }
 
-        private IRocketCommand GetCommand(IRocketCommand command)
+        private IRocketCommand? GetCommand(IRocketCommand command)
         {
            return GetCommand(command.Name);
         }
 
-        public IRocketCommand GetCommand(string command)
+        public IRocketCommand? GetCommand(string command)
         {
-            IRocketCommand foundCommand = commands.Where(c => c.Name.ToLower() == command.ToLower()).FirstOrDefault();
-            if(foundCommand == null) commands.Where(c => c.Aliases.Select(a => a.ToLower()).Contains(command.ToLower())).FirstOrDefault();
+            IRocketCommand? foundCommand = commands.Where(c => c.Name.ToLower() == command.ToLower()).FirstOrDefault();
+            if (foundCommand == null)
+                foundCommand = commands.Where(c => c.Aliases.Select(a => a.ToLower()).Contains(command.ToLower())).FirstOrDefault();
             return foundCommand;
         }
 
@@ -117,6 +118,19 @@ namespace Rocket.Core.Commands
             }
         }
 
+        /// <summary>
+        /// Returns the assembly that owns a registered command (plugin, Rocket.Unturned, or Rocket.Core).
+        /// </summary>
+        public static Assembly GetCommandAssembly(IRocketCommand command)
+        {
+            if (command is RegisteredRocketCommand registered)
+            {
+                return registered.Type.Assembly;
+            }
+
+            return getCommandType(command).Assembly;
+        }
+
 
 
         public class CommandMappingComparer : IEqualityComparer<CommandMapping>
@@ -137,12 +151,12 @@ namespace Rocket.Core.Commands
             return true;
         }
 
-        public void Register(IRocketCommand command, string alias)
+        public void Register(IRocketCommand command, string? alias)
         {
             Register(command, alias, CommandPriority.Normal);
         }
 
-        public void Register(IRocketCommand command, string alias, CommandPriority priority)
+        public void Register(IRocketCommand command, string? alias, CommandPriority priority)
         {
             string name = command.Name;
             if (alias != null) name = alias;
@@ -204,69 +218,81 @@ namespace Rocket.Core.Commands
                 name = commandParts[0];
                 string[] parameters = commandParts.Skip(1).ToArray();
                 if (player == null) player = new ConsolePlayer();
-                IRocketCommand rocketCommand = GetCommand(name);
-                double cooldown = GetCooldown(player, rocketCommand);
-                if (rocketCommand != null)
+                IRocketCommand? rocketCommand = GetCommand(name);
+                if (rocketCommand == null)
                 {
-                    if (rocketCommand.AllowedCaller == AllowedCaller.Player && player is ConsolePlayer)
+                    return false;
+                }
+                double cooldown = GetCooldown(player, rocketCommand);
+                if (rocketCommand.AllowedCaller == AllowedCaller.Player && player is ConsolePlayer)
+                {
+                    Logging.Logger.Log("This command can't be called from console");
+                    return false;
+                }
+                if (rocketCommand.AllowedCaller == AllowedCaller.Console && !(player is ConsolePlayer))
+                {
+                    Logging.Logger.Log("This command can only be called from console");
+                    return false;
+                }
+                if(cooldown != -1)
+                {
+                    Logging.Logger.Log("This command is still on cooldown");
+                    return false;
+                }
+                try
+                {
+                    bool cancelCommand = false;
+                    if (OnExecuteCommand != null)
                     {
-                        Logging.Logger.Log("This command can't be called from console");
-                        return false;
-                    }
-                    if (rocketCommand.AllowedCaller == AllowedCaller.Console && !(player is ConsolePlayer))
-                    {
-                        Logging.Logger.Log("This command can only be called from console");
-                        return false;
-                    }
-                    if(cooldown != -1)
-                    {
-                        Logging.Logger.Log("This command is still on cooldown");
-                        return false;
-                    }
-                    try
-                    {
-                        bool cancelCommand = false;
-                        if (OnExecuteCommand != null)
-                        {
-                            foreach (var handler in OnExecuteCommand.GetInvocationList().Cast<ExecuteCommand>())
-                            {
-                                try
-                                {
-                                    handler(player, rocketCommand, ref cancelCommand);
-                                }
-                                catch (Exception ex)
-                                {
-                                    Logging.Logger.LogException(ex);
-                                }
-                            }
-                        }
-                        if (!cancelCommand)
+                        foreach (var handler in OnExecuteCommand.GetInvocationList().Cast<ExecuteCommand>())
                         {
                             try
                             {
-                                rocketCommand.Execute(player, parameters);
-                                if (!player.HasPermission("*")) { SetCooldown(player, rocketCommand); }
+                                handler(player, rocketCommand, ref cancelCommand);
                             }
-                            catch (NoPermissionsForCommandException ex)
+                            catch (Exception ex)
                             {
-                                Logging.Logger.LogWarning(ex.Message);
-                            }
-                            catch (WrongUsageOfCommandException)
-                            {
-                                //
-                            }
-                            catch (Exception)
-                            {
-                                throw;
+                                Logging.Logger.LogException(ex);
                             }
                         }
                     }
-                    catch (Exception ex)
+                    if (!cancelCommand)
                     {
-                        Logging.Logger.LogError("An error occured while executing " + rocketCommand.Name + " [" + String.Join(", ", parameters) + "]: " + ex.ToString());
+                        try
+                        {
+                            rocketCommand.Execute(player, parameters);
+                            if (!player.HasPermission("*")) { SetCooldown(player, rocketCommand); }
+                        }
+                        catch (NoPermissionsForCommandException ex)
+                        {
+                            Logging.Logger.LogWarning(ex.Message);
+                            return false;
+                        }
+                        catch (WrongUsageOfCommandException)
+                        {
+                            Logging.Logger.Log(R.Translate("command_wrong_usage", rocketCommand.Name, rocketCommand.Syntax));
+                            if (!string.IsNullOrEmpty(rocketCommand.Help))
+                            {
+                                Logging.Logger.Log(rocketCommand.Help);
+                            }
+                            return false;
+                        }
+                        catch (Exception)
+                        {
+                            throw;
+                        }
                     }
-                    return true;
+                    else
+                    {
+                        return false;
+                    }
                 }
+                catch (Exception ex)
+                {
+                    Logging.Logger.LogError("An error occured while executing " + rocketCommand.Name + " [" + String.Join(", ", parameters) + "]: " + ex.ToString());
+                    return false;
+                }
+                return true;
             }
 
             return false;

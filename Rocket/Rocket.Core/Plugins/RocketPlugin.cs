@@ -4,6 +4,7 @@ using Rocket.API.Extensions;
 using Rocket.Core.Assets;
 using Rocket.Core.Extensions;
 using Rocket.Core.Logging;
+using Rocket.Core.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -63,17 +64,17 @@ namespace Rocket.Core.Plugins
     public class RocketPlugin : MonoBehaviour, IRocketPlugin
     {
         public delegate void PluginUnloading(IRocketPlugin plugin);
-        public static event PluginUnloading OnPluginUnloading;
+        public static event PluginUnloading OnPluginUnloading = null!;
 
         public delegate void PluginLoading(IRocketPlugin plugin, ref bool cancelLoading);
-        public static event PluginLoading OnPluginLoading;
+        public static event PluginLoading OnPluginLoading = null!;
 
 
-        private XMLFileAsset<TranslationList> translationsXml;
+        private XMLFileAsset<TranslationList> translationsXml = null!;
 
 
 
-        private JsonFileAsset<TranslationList> translationsJson;
+        private JsonFileAsset<TranslationList> translationsJson = null!;
 
         public IAsset<TranslationList> Translations { get
                 {
@@ -114,12 +115,15 @@ namespace Rocket.Core.Plugins
             if (!System.IO.Directory.Exists(Directory))
                 System.IO.Directory.CreateDirectory(Directory);
 
-            if (DefaultTranslations != null | DefaultTranslations.Count() != 0)
+            if (DefaultTranslations != null && DefaultTranslations.Count() != 0)
             {
+                string languageCode = LanguageCodeHelper.Normalize(R.Settings.Instance.LanguageCode);
+                string translationExtension = Core.R.Settings.Instance.UseJsonForPlugins ? "json" : "xml";
+                string translationFile = Path.Combine(Directory, String.Format(Environment.PluginTranslationFileTemplate, Name, languageCode, translationExtension));
                 if(!Core.R.Settings.Instance.UseJsonForPlugins)
-                    translationsXml = new XMLFileAsset<TranslationList>(Path.Combine(Directory,String.Format(Environment.PluginTranslationFileTemplate, Name, R.Settings.Instance.LanguageCode, Core.R.Settings.Instance.UseJsonForPlugins ? "json" : "xml")), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, DefaultTranslations);
+                    translationsXml = new XMLFileAsset<TranslationList>(translationFile, new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, DefaultTranslations);
                 else
-                    translationsJson = new JsonFileAsset<TranslationList>(Path.Combine(Directory, String.Format(Environment.PluginTranslationFileTemplate, Name, R.Settings.Instance.LanguageCode, Core.R.Settings.Instance.UseJsonForPlugins ? "json" : "xml")), new Type[] {  typeof(TranslationList),typeof(TranslationListEntry)}, DefaultTranslations);
+                    translationsJson = new JsonFileAsset<TranslationList>(translationFile, new Type[] {  typeof(TranslationList),typeof(TranslationListEntry)}, DefaultTranslations);
 
 
 

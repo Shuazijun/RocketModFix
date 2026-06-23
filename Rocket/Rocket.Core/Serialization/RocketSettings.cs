@@ -102,9 +102,21 @@ namespace Rocket.Core.Serialization
         [XmlElement("UseJsonForPlugins")]
         public bool UseJsonForPlugins = false;
 
+        [XmlElement("PreloadLibraries")]
+        public bool PreloadLibraries = true;
+
+        [XmlElement("LogMissingDependencies")]
+        public bool LogMissingDependencies = false;
+
+        [XmlElement("LogDependencyRegistration")]
+        public bool LogDependencyRegistration = false;
+
         public void LoadDefaults()
         {
             UseJsonForPlugins = false;
+            PreloadLibraries = true;
+            LogMissingDependencies = false;
+            LogDependencyRegistration = false;
             RCON = new RemoteConsole();
             AutomaticShutdown = new AutomaticShutdown();
             WebConfigurations = new WebConfigurations();

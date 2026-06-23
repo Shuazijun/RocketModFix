@@ -46,12 +46,6 @@ namespace Rocket.Unturned.Commands
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
 
-            //if (player.Stance == EPlayerStance.DRIVING || player.Stance == EPlayerStance.SITTING)
-            //{
-            //    UnturnedChat.Say(player, U.Translate("command_generic_teleport_while_driving_error"));
-            //    throw new WrongUsageOfCommandException(caller, this);
-            //}
-
             if (!player.Player.quests.isMarkerPlaced)
             {
                 UnturnedChat.Say(player, U.Translate("command_tpwp_marker_not_set"));
@@ -64,7 +58,6 @@ namespace Rocket.Unturned.Commands
                 UnturnedChat.Say(player, U.Translate("command_tpwp_failed_raycast"));
                 throw new WrongUsageOfCommandException(caller, this);
             }
-            //player.Teleport(new Vector3(position.x, position.y, position.z), player.Rotation);
             player.Player.teleportToLocationUnsafe(new Vector3(position.x, position.y, position.z), player.Rotation);
             Core.Logging.Logger.Log(U.Translate("command_tp_teleport_console", player.CharacterName, position.x + ", " + position.y + ", " + position.z));
             UnturnedChat.Say(player, U.Translate("command_tp_teleport_private", position.x + ", " + position.y + ", " + position.z));

@@ -27,12 +27,6 @@ namespace Rocket.Unturned.Player
                 Player.GetComponent<UnturnedPlayerMovement>().VanishMode = value;
                 PlayerMovement pMovement = Player.GetComponent<PlayerMovement>();
                 pMovement.canAddSimulationResultsToUpdates = !value;
-                if (vanishMode && !value)
-                {
-                    pMovement.updates.Add(new PlayerStateUpdate(pMovement.real, Player.Player.look.angle, Player.Player.look.rot));
-                    pMovement.isUpdated = true;
-                    PlayerManager.updates++;
-                }
                 vanishMode = value;
             }
         }
@@ -49,6 +43,7 @@ namespace Rocket.Unturned.Player
                 Player.Thirst = 0;
                 Player.Heal(100);
                 Player.Stamina = 100;
+                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
                 if (value)
                 {
                     Player.Events.OnUpdateHealth += e_OnPlayerUpdateHealth;
@@ -58,6 +53,7 @@ namespace Rocket.Unturned.Player
                     Player.Events.OnUpdateFood += e_OnPlayerUpdateFood;
                     Player.Events.OnUpdateVirus += e_OnPlayerUpdateVirus;
                     Player.Events.OnUpdateStamina += e_OnPlayerUpdateStamina;
+                    Player.Player.life.onOxygenUpdated += e_OnPlayerUpdateOxygen;
                 }
                 else
                 {
@@ -68,6 +64,7 @@ namespace Rocket.Unturned.Player
                     Player.Events.OnUpdateFood -= e_OnPlayerUpdateFood;
                     Player.Events.OnUpdateVirus -= e_OnPlayerUpdateVirus;
                     Player.Events.OnUpdateStamina -= e_OnPlayerUpdateStamina;
+                    Player.Player.life.onOxygenUpdated -= e_OnPlayerUpdateOxygen;
                 }
                 godMode = value;
             }
@@ -128,12 +125,14 @@ namespace Rocket.Unturned.Player
                 Player.Events.OnUpdateFood += e_OnPlayerUpdateFood;
                 Player.Events.OnUpdateVirus += e_OnPlayerUpdateVirus;
                 Player.Events.OnUpdateStamina += e_OnPlayerUpdateStamina;
+                Player.Player.life.onOxygenUpdated += e_OnPlayerUpdateOxygen;
                 Player.Heal(100);
                 Player.Infection = 0;
                 Player.Hunger = 0;
                 Player.Thirst = 0;
                 Player.Bleeding = false;
                 Player.Broken = false;
+                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
             }
         }
 
@@ -169,6 +168,19 @@ namespace Rocket.Unturned.Player
         private void e_OnPlayerUpdateStamina(UnturnedPlayer player, byte stamina)
         {
             if (stamina < 100) Player.Stamina = 100;
+        }
+
+        private void e_OnPlayerUpdateOxygen(byte oxygen)
+        {
+            if (oxygen < 100)
+            {
+                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
+            }
+        }
+
+        private sbyte GetOxygenRefillAmount()
+        {
+            return (sbyte)Math.Max(0, 100 - Player.Player.life.oxygen);
         }
     }
 }

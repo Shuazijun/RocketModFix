@@ -1,46 +1,106 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+
+
   <PropertyGroup>
+
     <TargetFrameworks>net481;netstandard2.1</TargetFrameworks>
+
     <SolutionDir>$([System.IO.Path]::GetFullPath($(MSBuildProjectDirectory)/../../))</SolutionDir>
+
   </PropertyGroup>
+
+
 
   <Import Project="$(MSBuildThisFileDirectory)\..\props\SharedProjectProps.props"/>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Rocket\Rocket.API\Rocket.API.csproj" />
-    <ProjectReference Include="..\Rocket\Rocket.Core\Rocket.Core.csproj" />
-  </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)\..\props\BuildMetadata.targets"/>
+
+
 
   <ItemGroup>
-    <PackageReference Include="RocketModFix.UnityEngine.Redist" Version="2022.3.62.3">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="RocketModFix.Unturned.Redist.Server" Version="3.26.3.3">
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
+
+    <ProjectReference Include="..\Rocket\Rocket.API\Rocket.API.csproj" />
+
+    <ProjectReference Include="..\Rocket\Rocket.Core\Rocket.Core.csproj" />
+
   </ItemGroup>
+
+
+
+  <ItemGroup>
+
+    <PackageReference Include="RocketModFix.UnityEngine.Redist" Version="2022.3.62.3">
+
+      <PrivateAssets>All</PrivateAssets>
+
+    </PackageReference>
+
+    <PackageReference Include="RocketModFix.Unturned.Redist.Server" Version="3.26.3.3">
+
+      <PrivateAssets>All</PrivateAssets>
+
+    </PackageReference>
+
+    <PackageReference Include="Lib.Harmony" Version="2.3.3">
+      <PrivateAssets>none</PrivateAssets>
+    </PackageReference>
+
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+
+  </ItemGroup>
+
+
 
   <Target Name="RocketModModuleArtifacts" AfterTargets="PostBuildEvent">
 
+
+
     <ItemGroup>
+
       <RocketModFiles Include="$(OutDir)*Rocket*.dll"/>
+
       <RocketModModuleFiles Include="Module/Rocket.Unturned/*"/>
+
       <RocketModInstallationGuides Include="Module/InstallationGuides/*.txt"/>
+
+      <RocketModConfigSamples Include="Module/ConfigSamples/*"/>
+
       <RocketModRuntimeLibs Include="Module/RuntimeLibs/*.dll"/>
+
     </ItemGroup>
 
+
+
     <PropertyGroup>
+
       <RocketUnturnedOutputDirectory>$(OutDir)Rocket.Unturned/Rocket.Unturned</RocketUnturnedOutputDirectory>
+
     </PropertyGroup>
+
+
 
     <MakeDir Directories="$(RocketUnturnedOutputDirectory)"/>
 
+
+
     <Copy SourceFiles="@(RocketModInstallationGuides)" DestinationFolder="$(RocketUnturnedOutputDirectory)\.."/>
+
+    <Copy SourceFiles="@(RocketModConfigSamples)" DestinationFolder="$(RocketUnturnedOutputDirectory)\..\ConfigSamples"/>
+
     <Copy SourceFiles="@(RocketModFiles)" DestinationFolder="$(RocketUnturnedOutputDirectory)"/>
+
     <Copy SourceFiles="@(RocketModModuleFiles)" DestinationFolder="$(RocketUnturnedOutputDirectory)"/>
+
     <Copy SourceFiles="@(RocketModRuntimeLibs)" DestinationFolder="$(RocketUnturnedOutputDirectory)"/>
+
+    <Copy SourceFiles="$(OutDir)0Harmony.dll" DestinationFolder="$(RocketUnturnedOutputDirectory)" Condition="Exists('$(OutDir)0Harmony.dll')" />
+
+
 
   </Target>
 
+
+
 </Project>
+

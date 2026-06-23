@@ -6,6 +6,7 @@ using System.Xml.Serialization;
 using SDG.Framework.IO.Serialization;
 using Newtonsoft.Json;
 using SDG.Framework.IO.Deserialization;
+using Rocket.Core.Utils;
 
 namespace Rocket.Core.Assets
 {
@@ -13,9 +14,9 @@ namespace Rocket.Core.Assets
     {
         private JSONDeserializer deserializer;
         private string file;
-        T defaultInstance;
+        T? defaultInstance;
 
-        public JsonFileAsset(string file, Type[] extraTypes = null, T defaultInstance = null)
+        public JsonFileAsset(string file, Type[]? extraTypes = null, T? defaultInstance = null)
         {
             
             this.deserializer = new JSONDeserializer();
@@ -45,7 +46,7 @@ namespace Rocket.Core.Assets
                         instance = defaultInstance;
                     }
                 }
-                File.WriteAllText(file,JsonConvert.SerializeObject(instance, Formatting.Indented));
+                File.WriteAllText(file, JsonConvert.SerializeObject(instance, Formatting.Indented), RocketFileEncoding.Utf8WithBom);
                 return instance;
                 
             }
@@ -55,10 +56,12 @@ namespace Rocket.Core.Assets
             }
         }
 
-        public override void Load(AssetLoaded<T> callback = null)
+        public override void Load(AssetLoaded<T>? callback = null)
         {
             try
             {
+                ConfigSampleHelper.TryCopySample(file);
+
                 if (!String.IsNullOrEmpty(file) && File.Exists(file))
                 {
                     instance = deserializer.deserialize<T>(file);

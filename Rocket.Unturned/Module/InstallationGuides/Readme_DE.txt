@@ -1,15 +1,15 @@
 RocketModFix für Unturned
 -------------------------
 
-GitHub: https://github.com/RocketModFix/RocketModFix
+GitHub: https://github.com/Shuazijun/RocketModFix
 
-Für die neuesten Downloads besuchen Sie: https://github.com/RocketModFix/RocketModFix/releases.
+Neueste Version: https://github.com/Shuazijun/RocketModFix/releases.
 
-Treten Sie unserer Discord-Community bei: https://discord.gg/z6VM7taWeG
+Discord: https://discord.gg/z6VM7taWeG
 
 Installation
 ------------
 
-Copiere den "Rocket.Unturned" Ordner nach /Unturned/Modules (kopiere den Ordner, nicht den Inhalt, und wenn es fragt, ob die vorhandenen Dateien ersetzt werden sollen, dann drücke auf Ersetzen).
+Kopieren Sie den Ordner "Rocket.Unturned" nach /Unturned/Modules (den gesamten Ordner kopieren, nicht nur den Inhalt; bei Ersetzungsabfrage bestätigen).
 
-Für mehr, besuche: https://github.com/RocketModFix/RocketModFix?tab=readme-ov-file#standard-way
+Weitere Informationen: https://github.com/Shuazijun/RocketModFix#standard-install

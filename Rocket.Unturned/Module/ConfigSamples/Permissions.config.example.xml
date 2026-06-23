@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket 权限配置示例（RocketModFix）
+  用法：复制到 Servers/<实例>/Rocket/Permissions.config.xml
+  说明：
+    - default：普通玩家（传送、家园、TPA、Warp 列表等）
+    - vip：继承 default，缩短 Homes/Warp 延迟（需配置 VIP 权限 tag）
+    - admin：管理员（rocket.* 通配符 + 控制台 RCON 子命令）
+  修改后：/p reload 或重启服务器
+  注：Steam 管理员（/admin）在代码中视为 IsAdmin，拥有全部命令权限
+-->
+<RocketPermissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- 新玩家默认加入的权限组 Id -->
+  <DefaultGroup>default</DefaultGroup>
+  <Groups>
+  <!-- ========== 普通玩家组 ========== -->
+    <Group>
+      <!-- 组唯一标识（内部引用用） -->
+      <Id>default</Id>
+      <!-- 组显示名称 -->
+      <DisplayName>玩家</DisplayName>
+      <!-- 聊天/列表颜色名（见 Rocket 颜色表） -->
+      <Color>white</Color>
+      <!-- 优先级，数值越小越优先（用于颜色、前缀等） -->
+      <Priority>100</Priority>
+      <!-- 静态成员 Steam64 列表（也可游戏内 /p add 动态添加） -->
+      <Members />
+      <Permissions>
+        <!-- 查看 /help 等帮助信息 -->
+        <Permission>rocket.help</Permission>
+        <!-- 查看 /rocket 版本信息 -->
+        <Permission>rocket.info</Permission>
+        <!-- 单床 /home（Homes.Enabled=false 时仍可用原版床传送） -->
+        <Permission>rocket.home</Permission>
+        <!-- 内嵌 TPA（需 Rocket.Unturned.TPA.config.xml Enabled=true） -->
+        <Permission>rocket.tpa</Permission>
+        <!-- 内嵌多 Home 列表与传送（需 Homes.config Enabled=true） -->
+        <Permission>rocket.homes</Permission>
+        <!-- 删除已认领家园 -->
+        <Permission>rocket.destroyhome</Permission>
+        <!-- 重命名家园 -->
+        <Permission>rocket.renamehome</Permission>
+        <!-- 使用公共传送点 /warp（需 Warps.config Enabled=true） -->
+        <Permission>rocket.warp</Permission>
+        <!-- 查看传送点列表 /warps -->
+        <Permission>rocket.warps</Permission>
+      </Permissions>
+    </Group>
+  <!-- ========== VIP 组（继承 default） ========== -->
+    <Group>
+      <Id>vip</Id>
+      <DisplayName>VIP</DisplayName>
+      <Color>FFCC00</Color>
+      <Priority>50</Priority>
+      <!-- 继承 default 组全部权限 -->
+      <ParentGroup>default</ParentGroup>
+      <!-- 填入 VIP 玩家 Steam64，例如：<Member>76561198000000000</Member> -->
+      <Members />
+      <Permissions>
+        <!-- 对应 Homes 配置 VipCooldowns / VipDelays / VipMaxHomes -->
+        <Permission>rocket.homes.vip</Permission>
+        <!-- 更高档 VIP（更短冷却） -->
+        <Permission>rocket.homes.star</Permission>
+        <!-- 对应 Warps 配置 VipDelays -->
+        <Permission>rocket.warp.vip</Permission>
+        <Permission>rocket.warp.star</Permission>
+      </Permissions>
+    </Group>
+  <!-- ========== 管理员组 ========== -->
+    <Group>
+      <Id>admin</Id>
+      <DisplayName>管理员</DisplayName>
+      <Color>FF4040</Color>
+      <Priority>10</Priority>
+      <!-- 填入管理员 Steam64 -->
+      <Members />
+      <Permissions>
+        <!-- 全部 Rocket.Unturned / Rocket.Core 命令（含 setwarp、restorehomes 等） -->
+        <Permission>rocket.*</Permission>
+        <!-- 超级权限（可选，授予游戏内一切权限，慎用） -->
+        <!-- <Permission>*</Permission> -->
+      </Permissions>
+    </Group>
+  </Groups>
+</RocketPermissions>

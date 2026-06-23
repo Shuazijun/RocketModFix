@@ -15,12 +15,12 @@ namespace Rocket.Core.Extensions
         {
             _comment = comment;
         }
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             writer.WriteValue(value);
             writer.WriteComment(_comment); // append comment
         }
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue,
         JsonSerializer serializer)
         {
             throw new NotImplementedException();

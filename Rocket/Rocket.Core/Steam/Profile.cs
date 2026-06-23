@@ -10,34 +10,34 @@ namespace Rocket.Core.Steam
     public class Profile
     {
         public ulong SteamID64 { get; set; }
-        public string SteamID { get; set; }
-        public string OnlineState { get; set; }
-        public string StateMessage { get; set; }
-        public string PrivacyState { get; set; }
+        public string? SteamID { get; set; }
+        public string? OnlineState { get; set; }
+        public string? StateMessage { get; set; }
+        public string? PrivacyState { get; set; }
         public ushort? VisibilityState { get; set; }
-        public Uri AvatarIcon { get; set; }
-        public Uri AvatarMedium { get; set; }
-        public Uri AvatarFull { get; set; }
+        public Uri? AvatarIcon { get; set; }
+        public Uri? AvatarMedium { get; set; }
+        public Uri? AvatarFull { get; set; }
         public bool? IsVacBanned { get; set; }
-        public string TradeBanState { get; set; }
+        public string? TradeBanState { get; set; }
         public bool? IsLimitedAccount { get; set; }
-        public string CustomURL { get; set; }
+        public string? CustomURL { get; set; }
         public DateTime? MemberSince { get; set; }
         public double? HoursPlayedLastTwoWeeks { get; set; }
-        public string Headline { get; set; }
-        public string Location { get; set; }
-        public string RealName { get; set; }
-        public string Summary { get; set; }
-        public List<MostPlayedGame> MostPlayedGames { get; set; }
-        public List<Group> Groups { get; set; }
+        public string? Headline { get; set; }
+        public string? Location { get; set; }
+        public string? RealName { get; set; }
+        public string? Summary { get; set; }
+        public List<MostPlayedGame>? MostPlayedGames { get; set; }
+        public List<Group>? Groups { get; set; }
 
         public class MostPlayedGame
         {
-            public string Name { get; set; }
-            public Uri Link { get; set; }
-            public Uri Icon { get; set; }
-            public Uri Logo { get; set; }
-            public Uri LogoSmall { get; set; }
+            public string? Name { get; set; }
+            public Uri? Link { get; set; }
+            public Uri? Icon { get; set; }
+            public Uri? Logo { get; set; }
+            public Uri? LogoSmall { get; set; }
             public double? HoursPlayed { get; set; }
             public double? HoursOnRecord { get; set; }
         }
@@ -46,13 +46,13 @@ namespace Rocket.Core.Steam
         {
             public ulong? SteamID64 { get; set; }
             public bool IsPrimary { get; set; }
-            public string Name { get; set; }
-            public string URL { get; set; }
-            public Uri AvatarIcon { get; set; }
-            public Uri AvatarMedium { get; set; }
-            public Uri AvatarFull { get; set; }
-            public string Headline { get; set; }
-            public string Summary { get; set; }
+            public string? Name { get; set; }
+            public string? URL { get; set; }
+            public Uri? AvatarIcon { get; set; }
+            public Uri? AvatarMedium { get; set; }
+            public Uri? AvatarFull { get; set; }
+            public string? Headline { get; set; }
+            public string? Summary { get; set; }
             public uint? MemberCount { get; set; }
             public uint? MembersInGame { get; set; }
             public uint? MembersInChat { get; set; }
@@ -62,7 +62,6 @@ namespace Rocket.Core.Steam
         public Profile(ulong steamID64)
         {
             SteamID64 = steamID64;
-            Reload();
         }
 
 
@@ -143,7 +142,7 @@ namespace Rocket.Core.Steam
     }
     public static class XmlElementExtensions
     {
-        public static string ParseString(this XmlElement element)
+        public static string? ParseString(this XmlElement element)
         {
             return element.InnerText;
         }
@@ -221,7 +220,7 @@ namespace Rocket.Core.Steam
             }
         }
 
-        public static Uri ParseUri(this XmlElement element)
+        public static Uri? ParseUri(this XmlElement element)
         {
             try
             {

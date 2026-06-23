@@ -11,6 +11,8 @@ namespace Rocket.Unturned.Commands
 {
     public class CommandP : IRocketCommand
     {
+        private const int PermissionsPerLine = 8;
+
         public AllowedCaller AllowedCaller
         {
             get
@@ -55,18 +57,18 @@ namespace Rocket.Unturned.Commands
 
             if (command.Length == 0 && caller is not ConsolePlayer)
             {
-                UnturnedChat.Say(caller, U.Translate("command_p_groups_private", "Your", string.Join(", ", R.Permissions.GetGroups(caller, true).Select(g => g.DisplayName).ToArray())));
-                UnturnedChat.Say(caller, U.Translate("command_p_permissions_private", "Your", string.Join(", ", Core.R.Permissions.GetPermissions(caller).Select(p => p.Name + (p.Cooldown != 0 ? "(" + p.Cooldown + ")" : "")).ToArray())));
+                SayGroups(caller, "Your", caller);
+                SayPermissions(caller, "Your", caller);
             }
             else if (command.Length == 1)
             {
 
-                IRocketPlayer player = command.GetUnturnedPlayerParameter(0);
+                IRocketPlayer? player = command.GetUnturnedPlayerParameter(0);
                 if (player == null) player = command.GetRocketPlayerParameter(0);
                 if (player != null)
                 {
-                    UnturnedChat.Say(caller, U.Translate("command_p_groups_private", player.DisplayName + "s", string.Join(", ", R.Permissions.GetGroups(player, true).Select(g => g.DisplayName).ToArray())));
-                    UnturnedChat.Say(caller, U.Translate("command_p_permissions_private", player.DisplayName + "s", string.Join(", ", Core.R.Permissions.GetPermissions(player).Select(p => p.Name + (p.Cooldown != 0 ? "(" + p.Cooldown + ")" : "")).ToArray())));
+                    SayGroups(caller, player.DisplayName + "'s", player);
+                    SayPermissions(caller, player.DisplayName + "'s", player);
                 }
                 else
                 {
@@ -76,12 +78,12 @@ namespace Rocket.Unturned.Commands
             }
             else if (command.Length == 3)
             {
-                string c = command.GetStringParameter(0).ToLower();
+                string? c = command.GetStringParameter(0)?.ToLower();
 
-                IRocketPlayer player = command.GetUnturnedPlayerParameter(1);
+                IRocketPlayer? player = command.GetUnturnedPlayerParameter(1);
                 if (player == null) player = command.GetRocketPlayerParameter(1);
 
-                string groupName = command.GetStringParameter(2);
+                string? groupName = command.GetStringParameter(2);
 
                 switch (c)
                 {
@@ -142,6 +144,39 @@ namespace Rocket.Unturned.Commands
             {
                 UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
                 throw new WrongUsageOfCommandException(caller, this);
+            }
+        }
+
+        private static void SayGroups(IRocketPlayer caller, string ownerLabel, IRocketPlayer target)
+        {
+            string[] groups = R.Permissions.GetGroups(target, true).Select(g => g.DisplayName).ToArray();
+            if (groups.Length == 0)
+            {
+                UnturnedChat.Say(caller, U.Translate("command_p_groups_private", ownerLabel, "(none)"));
+                return;
+            }
+
+            UnturnedChat.Say(caller, U.Translate("command_p_groups_private", ownerLabel, string.Join(", ", groups)));
+        }
+
+        private static void SayPermissions(IRocketPlayer caller, string ownerLabel, IRocketPlayer target)
+        {
+            List<string> permissions = R.Permissions.GetPermissions(target)
+                .Select(p => p.Name + (p.Cooldown != 0 ? "(" + p.Cooldown + ")" : ""))
+                .OrderBy(p => p, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (permissions.Count == 0)
+            {
+                UnturnedChat.Say(caller, U.Translate("command_p_permissions_private", ownerLabel, "(none)"));
+                return;
+            }
+
+            UnturnedChat.Say(caller, U.Translate("command_p_permissions_private", ownerLabel, $"({permissions.Count})"));
+            for (int i = 0; i < permissions.Count; i += PermissionsPerLine)
+            {
+                string chunk = string.Join(", ", permissions.Skip(i).Take(PermissionsPerLine));
+                UnturnedChat.Say(caller, chunk);
             }
         }
     }

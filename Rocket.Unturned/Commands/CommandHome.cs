@@ -1,51 +1,38 @@
 ﻿using Rocket.API;
 using Rocket.Unturned.Chat;
+using Rocket.Unturned.Homes;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 namespace Rocket.Unturned.Commands
 {
     public class CommandHome : IRocketCommand
     {
-        public AllowedCaller AllowedCaller
-        {
-            get
-            {
-                return AllowedCaller.Player;
-            }
-        }
+        public AllowedCaller AllowedCaller => AllowedCaller.Player;
 
-        public string Name
-        {
-            get { return "home"; }
-        }
+        public string Name => "home";
 
-        public string Help
-        {
-            get { return "Teleports you to your last bed"; }
-        }
+        public string Help => "Teleports you to your bed";
 
-        public string Syntax
-        {
-            get { return ""; }
-        }
+        public string Syntax => "[name]";
 
-        public List<string> Aliases
-        {
-            get { return new List<string>(); }
-        }
+        public List<string> Aliases => new List<string>();
 
-        public List<string> Permissions
-        {
-            get { return new List<string>() { "rocket.home" }; }
-        }
+        public List<string> Permissions => new List<string> { "rocket.home" };
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
             UnturnedPlayer player = (UnturnedPlayer)caller;
+
+            if (U.HomeSettings.Instance.Enabled && HomeRegistry.Instance != null)
+            {
+                string? homeName = command.Length > 0 ? command[0] : null;
+                HomeRegistry.Instance.TeleportToHome(player, homeName);
+                return;
+            }
+
             Vector3 pos;
             byte rot;
             if (!BarricadeManager.tryGetBed(player.CSteamID, out pos, out rot))
@@ -53,30 +40,10 @@ namespace Rocket.Unturned.Commands
                 UnturnedChat.Say(caller, U.Translate("command_bed_no_bed_found_private"));
                 throw new WrongUsageOfCommandException(caller, this);
             }
-            else
-            {
-                //if (player.Stance == EPlayerStance.DRIVING || player.Stance == EPlayerStance.SITTING)
-                //{
-                //    UnturnedChat.Say(caller, U.Translate("command_generic_teleport_while_driving_error"));
-                //    throw new WrongUsageOfCommandException(caller, this);
-                //}
-                //else
-                //{
-                pos.y += 0.5f; // Respawn uses this offset.
 
-                float yaw = MeasurementTool.byteToAngle(rot);
-
-                //bool teleportSuccessful = player.Player.teleportToLocation(pos, yaw);
-
-                player.Player.teleportToLocationUnsafe(pos, yaw);
-
-                //if (!teleportSuccessful)
-                //{
-                //    UnturnedChat.Say(caller, U.Translate("command_bed_obstructed"));
-                //}
-                //}
-            }
-
+            pos.y += 0.5f;
+            float yaw = MeasurementTool.byteToAngle(rot);
+            player.Player.teleportToLocationUnsafe(pos, yaw);
         }
     }
 }

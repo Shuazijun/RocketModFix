@@ -14,9 +14,9 @@ namespace Rocket.Core.Plugins
     public sealed class RocketPluginManager : MonoBehaviour
     {
         public delegate void PluginsLoaded();
-        public event PluginsLoaded OnPluginsLoaded;
+        public event PluginsLoaded OnPluginsLoaded = null!;
 
-        private static List<Assembly> pluginAssemblies;
+        private static List<Assembly> pluginAssemblies = null!;
         private static List<GameObject> plugins = new List<GameObject>();
         internal static List<IRocketPlugin> Plugins { get { return plugins.Select(g => g.GetComponent<IRocketPlugin>()).Where(p => p != null).ToList<IRocketPlugin>(); } }
 
@@ -24,6 +24,8 @@ namespace Rocket.Core.Plugins
         /// Maps assembly name to .dll file path.
         /// </summary>
         private Dictionary<AssemblyName, string> libraries = new Dictionary<AssemblyName, string>();
+        private readonly Dictionary<string, Assembly> loadedAssemblies = new Dictionary<string, Assembly>(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> loggedMissingDependencies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
         public List<IRocketPlugin> GetPlugins()
         {
@@ -40,12 +42,17 @@ namespace Rocket.Core.Plugins
             return plugins.Select(g => g.GetComponent<IRocketPlugin>()).Where(p => p != null && ((IRocketPlugin)p).Name == name).FirstOrDefault();
         }
 
-        private Assembly OnAssemblyResolve(object sender, ResolveEventArgs args)
+        private Assembly? OnAssemblyResolve(object sender, ResolveEventArgs args)
         {
             try
             {
                 AssemblyName requestedName = new AssemblyName(args.Name);
-                var matchesByName = libraries.Where(lib => string.Equals(lib.Key.Name, requestedName.Name));
+                if (loadedAssemblies.TryGetValue(requestedName.Name, out Assembly cachedAssembly))
+                {
+                    return cachedAssembly;
+                }
+
+                var matchesByName = libraries.Where(lib => string.Equals(lib.Key.Name, requestedName.Name, StringComparison.OrdinalIgnoreCase));
                 
                 // Prefer exactly-matching version if possible.
                 var bestMatch = matchesByName.FirstOrDefault(lib => lib.Key.Version == requestedName.Version);
@@ -69,7 +76,9 @@ namespace Rocket.Core.Plugins
                         }
                     }
 
-                    return Assembly.Load(File.ReadAllBytes(bestMatch.Value));
+                    Assembly assembly = Assembly.Load(File.ReadAllBytes(bestMatch.Value));
+                    loadedAssemblies[requestedName.Name] = assembly;
+                    return assembly;
                 }
             }
             catch (Exception ex)
@@ -77,7 +86,10 @@ namespace Rocket.Core.Plugins
                 Logging.Logger.LogException(ex, "Rocket caught exception resolving dependency: " + args.Name);
             }
 
-            Logging.Logger.LogError("Rocket could not find dependency: " + args.Name);
+            if (R.Settings.Instance.LogMissingDependencies && loggedMissingDependencies.Add(args.Name))
+            {
+                Logging.Logger.LogError("Rocket could not find dependency: " + args.Name);
+            }
             return null;
         }
 
@@ -98,6 +110,8 @@ namespace Rocket.Core.Plugins
 
         private void loadPlugins()
         {
+            loadedAssemblies.Clear();
+            loggedMissingDependencies.Clear();
             libraries = FindAssembliesInDirectory(Environment.LibrariesDirectory);
             foreach(KeyValuePair<AssemblyName,string> pair in FindAssembliesInDirectory(Environment.PluginsDirectory))
             {
@@ -105,9 +119,17 @@ namespace Rocket.Core.Plugins
                     libraries.Add(pair.Key,pair.Value);
             }
 
-            foreach (KeyValuePair<AssemblyName, string> pair in libraries)
+            if (R.Settings.Instance.LogDependencyRegistration)
             {
-                Logging.Logger.Log($"Rocket dependency registered: {pair.Key} at {pair.Value}");
+                foreach (KeyValuePair<AssemblyName, string> pair in libraries)
+                {
+                    Logging.Logger.Log($"Rocket dependency registered: {pair.Key} at {pair.Value}");
+                }
+            }
+
+            if (R.Settings.Instance.PreloadLibraries)
+            {
+                PreloadRegisteredLibraries();
             }
 
             pluginAssemblies = LoadAssembliesFromDirectory(Environment.PluginsDirectory);
@@ -199,6 +221,27 @@ namespace Rocket.Core.Plugins
                 }
             }
             return assemblies;
+        }
+
+        private void PreloadRegisteredLibraries()
+        {
+            foreach (KeyValuePair<AssemblyName, string> pair in libraries)
+            {
+                string assemblyName = pair.Key.Name;
+                if (loadedAssemblies.ContainsKey(assemblyName))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    loadedAssemblies[assemblyName] = Assembly.Load(File.ReadAllBytes(pair.Value));
+                }
+                catch (Exception ex)
+                {
+                    Logging.Logger.LogError(ex, "Could not preload Rocket dependency: " + assemblyName);
+                }
+            }
         }
     }
 }

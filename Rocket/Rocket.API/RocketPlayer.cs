@@ -14,12 +14,12 @@ namespace Rocket.API
         private bool isAdmin;
         public bool IsAdmin { get { return isAdmin; } }
 
-        public RocketPlayer(string Id, string DisplayName = null, bool IsAdmin = false)
+        public RocketPlayer(string Id, string? DisplayName = null, bool IsAdmin = false)
         {
             id = Id;
             if (DisplayName == null)
             {
-                DisplayName = Id;
+                displayName = Id;
             }
             else
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using SDG.Unturned;
 
@@ -15,20 +16,32 @@ namespace Rocket.Unturned.Items
 
     public static class UnturnedItems
     {
-        public static ItemAsset GetItemAssetByName(string name)
+        public static ItemAsset? GetItemAssetByName(string name)
         {
             if (String.IsNullOrEmpty(name)) return null;
-            return SDG.Unturned.Assets.find(EAssetType.ITEM).Cast<ItemAsset>().Where(i => i.itemName != null && i.itemName.ToLower().Contains(name.ToLower())).FirstOrDefault();
+            List<ItemAsset> assets = new List<ItemAsset>();
+            SDG.Unturned.Assets.find(assets);
+            return assets.Where(i => i.itemName != null && i.itemName.ToLower().Contains(name.ToLower())).FirstOrDefault();
         }
 
-        public static ItemAsset GetItemAssetById(ushort id)
+        public static ItemAsset? GetItemAssetById(ushort id)
         {
             Asset asset = SDG.Unturned.Assets.find(EAssetType.ITEM, id);
             if (asset == null) return null;
             return (ItemAsset)asset;
         }
 
-        public static Item AssembleItem(ushort itemId, byte clipsize, Attachment sight, Attachment tactical, Attachment grip, Attachment barrel, Attachment magazine, EFiremode firemode = EFiremode.SAFETY, byte amount = 1, byte durability = 100)
+        public static IReadOnlyList<ItemAsset> GetRegisteredItemAssets()
+        {
+            List<ItemAsset> assets = new List<ItemAsset>();
+            SDG.Unturned.Assets.find(assets);
+            return assets
+                .Where(i => i != null)
+                .OrderBy(i => i.id)
+                .ToList();
+        }
+
+        public static Item AssembleItem(ushort itemId, byte clipsize, Attachment? sight, Attachment? tactical, Attachment? grip, Attachment? barrel, Attachment? magazine, EFiremode firemode = EFiremode.SAFETY, byte amount = 1, byte durability = 100)
         {
             byte[] metadata = new byte[18];
 
@@ -79,7 +92,7 @@ namespace Rocket.Unturned.Items
             return AssembleItem(itemId,amount,durability,metadata);
         }
 
-        public static Item AssembleItem(ushort itemId, byte amount = 1, byte durability = 100, byte[] metadata = null)
+        public static Item AssembleItem(ushort itemId, byte amount = 1, byte durability = 100, byte[]? metadata = null)
         {
             return new Item(itemId, amount, durability, (metadata == null ? new byte[0] : metadata));
         }

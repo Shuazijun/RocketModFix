@@ -39,7 +39,7 @@ namespace Rocket.Core.Logging
         {
             while (true)
             {
-                LogEntry le = null;
+                LogEntry? le = null;
 
                 bool skipEmptyCheck = false;
                 lock (logEntryQueueLock)

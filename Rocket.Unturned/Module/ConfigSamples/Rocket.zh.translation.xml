@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Core 简体中文翻译
+  用法：复制到 Servers/<实例>/Rocket/Rocket.zh.translation.xml
+  结构：Id = 代码内翻译键；Value = 游戏中显示的中文文本
+  {0} {1} 等为占位符，请勿删除
+-->
+<Translations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <!-- rocket_join_public：玩家加入服务器广播 -->
+  <Translation Id="rocket_join_public" Value="{0} 已连接到服务器" />
+  <!-- rocket_leave_public：玩家离开服务器广播 -->
+  <Translation Id="rocket_leave_public" Value="{0} 已断开连接" />
+  <!-- command_rwho_line：rwho 列出的单行 RCON 连接信息 -->
+  <Translation Id="command_rwho_line" Value="#{0}，连接 ID：{1}，已认证：{2}，地址：{3}，连接时间：{4}，已连接：{5}。" />
+  <!-- command_rkick_help：rkick 命令帮助 -->
+  <Translation Id="command_rkick_help" Value="用法：rkick &lt;连接ID&gt; - 将 RCON 客户端踢出。" />
+  <!-- command_rkick_notfound：rkick 找不到连接 -->
+  <Translation Id="command_rkick_notfound" Value="错误：未找到连接 ID 为 {0} 的 RCON 客户端！" />
+  <!-- command_rkick_kicked：rkick 成功 -->
+  <Translation Id="command_rkick_kicked" Value="已踢出 RCON 客户端，连接 ID：{0}，地址：{1}！" />
+  <!-- command_rflush_help：rflush 命令帮助 -->
+  <Translation Id="command_rflush_help" Value="用法：rflush &lt;y&gt; - 踢出服务器上所有已连接的 RCON 客户端。" />
+  <!-- command_rflush_total：rflush 汇总 -->
+  <Translation Id="command_rflush_total" Value="正在关闭 {0} 个 RCON 连接。" />
+  <!-- command_rflush_line：rflush 每行详情 -->
+  <Translation Id="command_rflush_line" Value="#{0}，连接 ID：{1}，地址：{2}，已关闭！" />
+  <!-- command_no_permission：无权限执行命令 -->
+  <Translation Id="command_no_permission" Value="你没有权限执行此命令。" />
+  <!-- command_cooldown：命令冷却中 -->
+  <Translation Id="command_cooldown" Value="请等待 {0} 秒后再使用此命令。" />
+  <!-- command_not_found：未知或未注册命令 -->
+  <Translation Id="command_not_found" Value="找不到该命令。" />
+  <!-- command_wrong_usage：参数或格式错误；{0}=命令名 {1}=语法 -->
+  <Translation Id="command_wrong_usage" Value="用法错误：/{0} {1}" />
+  <!-- command_executed：RCON/命令执行成功确认 -->
+  <Translation Id="command_executed" Value="命令已成功执行。" />
+  <!-- command_failed：RCON/命令执行失败（权限、冷却、用法等，详情见上方日志） -->
+  <Translation Id="command_failed" Value="命令执行失败或被拒绝。" />
+</Translations>

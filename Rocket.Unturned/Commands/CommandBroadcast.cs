@@ -52,7 +52,7 @@ namespace Rocket.Unturned.Commands
 
             int i = 1;
             if (color == null) i = 0;
-            string message = command.GetParameterString(i);
+            string? message = command.GetParameterString(i);
 
             if (message == null)
             {

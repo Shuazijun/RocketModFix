@@ -3,6 +3,14 @@
 
 # RocketModFix artifacts
 /Rocket.Unturned/Rocket.Unturned.Module.zip
+/dist/
+
+# Local developer docs (not for git)
+README_AI.md
+/docs/
+
+# Local dev scripts (machine-specific paths, U3DS test launcher)
+/scripts/
 
 # User-specific files
 *.suo

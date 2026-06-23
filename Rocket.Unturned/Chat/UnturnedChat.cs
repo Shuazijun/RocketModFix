@@ -99,13 +99,23 @@ namespace Rocket.Unturned.Chat
             Say(message, false);
         }
 
-        public static void Say(IRocketPlayer player, string message)
+        public static void Say(IRocketPlayer? player, string message)
         {
+            if (player == null)
+            {
+                Core.Logging.Logger.Log(message, ConsoleColor.Gray);
+                return;
+            }
             Say(player, message, false);
         }
 
-        public static void Say(IRocketPlayer player, string message, Color color, bool rich)
+        public static void Say(IRocketPlayer? player, string message, Color color, bool rich)
         {
+            if (player == null)
+            {
+                Core.Logging.Logger.Log(message, ConsoleColor.Gray);
+                return;
+            }
             if (player is ConsolePlayer)
             {
                 Core.Logging.Logger.Log(message, ConsoleColor.Gray);
@@ -116,7 +126,7 @@ namespace Rocket.Unturned.Chat
             }
         }
 
-        public static void Say(IRocketPlayer player, string message, Color color)
+        public static void Say(IRocketPlayer? player, string message, Color color)
         {
             Say(player, message, color, false);
         }
@@ -135,7 +145,7 @@ namespace Rocket.Unturned.Chat
             Say(message, color, false);
         }
 
-        public static void Say(IRocketPlayer player, string message, bool rich)
+        public static void Say(IRocketPlayer? player, string message, bool rich)
         {
             Say(player, message, Palette.SERVER, rich);
         }

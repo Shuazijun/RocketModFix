@@ -1,7 +1,8 @@
-﻿using Rocket.API;
+using Rocket.API;
 using Rocket.API.Serialisation;
 using Rocket.Core;
 using Rocket.Unturned.Chat;
+using Rocket.Unturned.Commands;
 using Rocket.Unturned.Extensions;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -17,7 +18,7 @@ namespace Rocket.Unturned.Permissions
     public class UnturnedPermissions : MonoBehaviour
     {
         public delegate void JoinRequested(CSteamID player, ref ESteamRejection? rejectionReason);
-        public static event JoinRequested OnJoinRequested;
+        public static event JoinRequested OnJoinRequested = null!;
         
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal static bool CheckPermissions(SteamPlayer caller, string permission)
@@ -25,10 +26,11 @@ namespace Rocket.Unturned.Permissions
             UnturnedPlayer player = caller.ToUnturnedPlayer();
 
             Regex r = new Regex("^\\/\\S*");
-            string requestedCommand = r.Match(permission.ToLower()).Value.TrimStart('/').ToLower();
+            string requestedCommand = r.Match(permission).Value.TrimStart('/');
+            string permissionCommandName = CommandAliasResolver.ResolvePermissionCommandName(requestedCommand);
 
-            IRocketCommand command = R.Commands.GetCommand(requestedCommand);
-            double cooldown = R.Commands.GetCooldown(player, command);
+                IRocketCommand? command = R.Commands.GetCommand(permissionCommandName);
+                double cooldown = command != null ? R.Commands.GetCooldown(player, command) : 0;
 
             if (command != null)
             {

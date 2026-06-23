@@ -1,4 +1,4 @@
-﻿using Rocket.Core.Logging;
+using Rocket.Core.Logging;
 using Rocket.Unturned.Enumerations;
 using Rocket.Unturned.Player;
 using SDG.Unturned;
@@ -263,72 +263,72 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerUpdatePosition(UnturnedPlayer player, Vector3 position);
-        public static event PlayerUpdatePosition OnPlayerUpdatePosition;
+        public static event PlayerUpdatePosition OnPlayerUpdatePosition = null!;
         internal static void fireOnPlayerUpdatePosition(UnturnedPlayer player)
         {
             OnPlayerUpdatePosition.TryInvoke(player,player.Position);
         }
 
         public delegate void PlayerUpdateBleeding(UnturnedPlayer player, bool bleeding);
-        public static event PlayerUpdateBleeding OnPlayerUpdateBleeding;
-        public event PlayerUpdateBleeding OnUpdateBleeding;
+        public static event PlayerUpdateBleeding OnPlayerUpdateBleeding = null!;
+        public event PlayerUpdateBleeding OnUpdateBleeding = null!;
 
         public delegate void PlayerUpdateBroken(UnturnedPlayer player, bool broken);
-        public static event PlayerUpdateBroken OnPlayerUpdateBroken;
-        public event PlayerUpdateBroken OnUpdateBroken;
+        public static event PlayerUpdateBroken OnPlayerUpdateBroken = null!;
+        public event PlayerUpdateBroken OnUpdateBroken = null!;
 
         public delegate void PlayerDeath(UnturnedPlayer player, EDeathCause cause, ELimb limb, CSteamID murderer);
-        public static event PlayerDeath OnPlayerDeath;
-        public event PlayerDeath OnDeath;
+        public static event PlayerDeath OnPlayerDeath = null!;
+        public event PlayerDeath OnDeath = null!;
 
         public delegate void PlayerDead(UnturnedPlayer player, Vector3 position);
-        public static event PlayerDead OnPlayerDead;
-        public event PlayerDead OnDead;
+        public static event PlayerDead OnPlayerDead = null!;
+        public event PlayerDead OnDead = null!;
 
         public delegate void PlayerUpdateLife(UnturnedPlayer player, byte life);
-        public static event PlayerUpdateLife OnPlayerUpdateLife;
-        public event PlayerUpdateLife OnUpdateLife;
+        public static event PlayerUpdateLife OnPlayerUpdateLife = null!;
+        public event PlayerUpdateLife OnUpdateLife = null!;
 
         public delegate void PlayerUpdateFood(UnturnedPlayer player, byte food);
-        public static event PlayerUpdateFood OnPlayerUpdateFood;
-        public event PlayerUpdateFood OnUpdateFood;
+        public static event PlayerUpdateFood OnPlayerUpdateFood = null!;
+        public event PlayerUpdateFood OnUpdateFood = null!;
 
         public delegate void PlayerUpdateHealth(UnturnedPlayer player, byte health);
-        public static event PlayerUpdateHealth OnPlayerUpdateHealth;
-        public event PlayerUpdateHealth OnUpdateHealth;
+        public static event PlayerUpdateHealth OnPlayerUpdateHealth = null!;
+        public event PlayerUpdateHealth OnUpdateHealth = null!;
 
         public delegate void PlayerUpdateVirus(UnturnedPlayer player, byte virus);
-        public static event PlayerUpdateVirus OnPlayerUpdateVirus;
-        public event PlayerUpdateVirus OnUpdateVirus;
+        public static event PlayerUpdateVirus OnPlayerUpdateVirus = null!;
+        public event PlayerUpdateVirus OnUpdateVirus = null!;
 
         public delegate void PlayerUpdateWater(UnturnedPlayer player, byte water);
-        public static event PlayerUpdateWater OnPlayerUpdateWater;
-        public event PlayerUpdateWater OnUpdateWater;
+        public static event PlayerUpdateWater OnPlayerUpdateWater = null!;
+        public event PlayerUpdateWater OnUpdateWater = null!;
 
         public enum PlayerGesture { None = 0, InventoryOpen = 1, InventoryClose = 2, Pickup = 3, PunchLeft = 4, PunchRight = 5, SurrenderStart = 6, SurrenderStop = 7, Point = 8, Wave = 9 , Salute = 10 , Arrest_Start = 11 , Arrest_Stop = 12 , Rest_Start = 13 , Rest_Stop = 14 , Facepalm = 15 };
         public delegate void PlayerUpdateGesture(UnturnedPlayer player, PlayerGesture gesture);
-        public static event PlayerUpdateGesture OnPlayerUpdateGesture;
-        public event PlayerUpdateGesture OnUpdateGesture;
+        public static event PlayerUpdateGesture OnPlayerUpdateGesture = null!;
+        public event PlayerUpdateGesture OnUpdateGesture = null!;
 
         public delegate void PlayerUpdateStance(UnturnedPlayer player, byte stance);
-        public static event PlayerUpdateStance OnPlayerUpdateStance;
-        public event PlayerUpdateStance OnUpdateStance;
+        public static event PlayerUpdateStance OnPlayerUpdateStance = null!;
+        public event PlayerUpdateStance OnUpdateStance = null!;
 
         public delegate void PlayerRevive(UnturnedPlayer player, Vector3 position, byte angle);
-        public static event PlayerRevive OnPlayerRevive;
-        public event PlayerRevive OnRevive;
+        public static event PlayerRevive OnPlayerRevive = null!;
+        public event PlayerRevive OnRevive = null!;
 
         public delegate void PlayerUpdateStat(UnturnedPlayer player, EPlayerStat stat);
-        public static event PlayerUpdateStat OnPlayerUpdateStat;
-        public event PlayerUpdateStat OnUpdateStat;
+        public static event PlayerUpdateStat OnPlayerUpdateStat = null!;
+        public event PlayerUpdateStat OnUpdateStat = null!;
 
         public delegate void PlayerUpdateExperience(UnturnedPlayer player, uint experience);
-        public static event PlayerUpdateExperience OnPlayerUpdateExperience;
-        public event PlayerUpdateExperience OnUpdateExperience;
+        public static event PlayerUpdateExperience OnPlayerUpdateExperience = null!;
+        public event PlayerUpdateExperience OnUpdateExperience = null!;
 
         public delegate void PlayerUpdateStamina(UnturnedPlayer player, byte stamina);
-        public static event PlayerUpdateStamina OnPlayerUpdateStamina;
-        public event PlayerUpdateStamina OnUpdateStamina;
+        public static event PlayerUpdateStamina OnPlayerUpdateStamina = null!;
+        public event PlayerUpdateStamina OnUpdateStamina = null!;
 
         private void onUpdateStamina(byte stamina)
         {
@@ -337,8 +337,8 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerInventoryUpdated(UnturnedPlayer player, InventoryGroup inventoryGroup, byte inventoryIndex, ItemJar P);
-        public static event PlayerInventoryUpdated OnPlayerInventoryUpdated;
-        public event PlayerInventoryUpdated OnInventoryUpdated;
+        public static event PlayerInventoryUpdated OnPlayerInventoryUpdated = null!;
+        public event PlayerInventoryUpdated OnInventoryUpdated = null!;
 
         private void onInventoryUpdated(byte E, byte O, ItemJar P)
         {
@@ -347,8 +347,8 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerInventoryResized(UnturnedPlayer player, InventoryGroup inventoryGroup, byte O, byte U);
-        public static event PlayerInventoryResized OnPlayerInventoryResized;
-        public event PlayerInventoryResized OnInventoryResized;
+        public static event PlayerInventoryResized OnPlayerInventoryResized = null!;
+        public event PlayerInventoryResized OnInventoryResized = null!;
 
         private void onInventoryResized(byte E, byte M, byte U)
         {
@@ -357,8 +357,8 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerInventoryRemoved(UnturnedPlayer player, InventoryGroup inventoryGroup, byte inventoryIndex, ItemJar P);
-        public static event PlayerInventoryRemoved OnPlayerInventoryRemoved;
-        public event PlayerInventoryRemoved OnInventoryRemoved;
+        public static event PlayerInventoryRemoved OnPlayerInventoryRemoved = null!;
+        public event PlayerInventoryRemoved OnInventoryRemoved = null!;
 
         private void onInventoryRemoved(byte E, byte y, ItemJar f)
         {
@@ -367,8 +367,8 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerInventoryAdded(UnturnedPlayer player, InventoryGroup inventoryGroup, byte inventoryIndex, ItemJar P);
-        public static event PlayerInventoryAdded OnPlayerInventoryAdded;
-        public event PlayerInventoryAdded OnInventoryAdded;
+        public static event PlayerInventoryAdded OnPlayerInventoryAdded = null!;
+        public event PlayerInventoryAdded OnInventoryAdded = null!;
 
         private void onInventoryAdded(byte E, byte u, ItemJar J)
         {
@@ -377,7 +377,7 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerChatted(UnturnedPlayer player, ref Color color, string message, EChatMode chatMode, ref bool cancel);
-        public static event PlayerChatted OnPlayerChatted;
+        public static event PlayerChatted OnPlayerChatted = null!;
 
         internal static Color firePlayerChatted(UnturnedPlayer player, EChatMode chatMode, Color color, string msg, ref bool cancel)
         {
@@ -401,7 +401,7 @@ namespace Rocket.Unturned.Events
 
         public enum Wearables { Hat = 0, Mask = 1, Vest = 2, Pants = 3, Shirt = 4, Glasses = 5, Backpack = 6};
         public delegate void PlayerWear(UnturnedPlayer player, Wearables wear, ushort id, byte? quality);
-        public static event PlayerWear OnPlayerWear;
+        public static event PlayerWear OnPlayerWear = null!;
 
     }
 }

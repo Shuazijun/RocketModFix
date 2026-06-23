@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 内嵌 Warps 传送点配置示例
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.Warps.config.xml
+  数据文件：Level/<地图>/RocketWarps.json（/setwarp 自动写入）
+  热重载：/rocket reload
+-->
+<WarpSettings>
+  <!-- 是否启用公共传送点 /warp、/warps（管理员 /setwarp 亦受此开关影响） -->
+  <Enabled>false</Enabled>
+  <!-- Warp 相关聊天消息颜色 -->
+  <MessageColor>cyan</MessageColor>
+  <!-- 消息图标 URL（留空则无） -->
+  <MessageIconUrl></MessageIconUrl>
+  <!-- 默认传送延迟（秒） -->
+  <DefaultWarpDelay>10</DefaultWarpDelay>
+  <!-- 延迟传送期间移动是否取消 -->
+  <CancelOnMove>true</CancelOnMove>
+  <!-- 判定移动的最大位移（米） -->
+  <MoveMaxDistance>0.5</MoveMaxDistance>
+  <!-- 是否在载具中禁止使用 /warp -->
+  <BlockInVehicle>true</BlockInVehicle>
+  <!-- true：不安全传送；false：尝试安全落点 -->
+  <UseUnsafeTeleport>false</UseUnsafeTeleport>
+  <!-- true：战斗状态仍可使用 warp；false：共享 TPA 战斗跟踪 -->
+  <AllowCombat>false</AllowCombat>
+  <!-- true：突袭状态仍可使用 warp；false：共享 TPA 突袭跟踪 -->
+  <AllowRaid>false</AllowRaid>
+  <!-- VIP 传送延迟覆盖（秒） -->
+  <VipDelays>
+    <VIPPermission PermissionTag="rocket.warp.vip" Value="5" />
+    <VIPPermission PermissionTag="rocket.warp.star" Value="3" />
+  </VipDelays>
+</WarpSettings>

@@ -9,12 +9,12 @@ namespace Rocket.Unturned.Commands
 {
     public static class UnturnedCommandExtensions
     {
-        public static UnturnedPlayer GetUnturnedPlayerParameter(this string[] array, int index)
+        public static UnturnedPlayer? GetUnturnedPlayerParameter(this string[] array, int index)
         {
             return (array.Length <= index) ? null : UnturnedPlayer.FromName(array[index]);
         }
 
-        public static RocketPlayer GetRocketPlayerParameter(this string[] array, int index)
+        public static RocketPlayer? GetRocketPlayerParameter(this string[] array, int index)
         {
             if(array.Length > index)
             {

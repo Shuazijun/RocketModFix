@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 自动存档配置示例
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.AutoSave.config.xml
+  说明：定时调用 SaveManager.save()；Unturned 原生无自动存档，依赖此功能
+  热重载：/rocket reload
+-->
+<AutoSaveSettings>
+  <!-- 是否启用定时自动存档 -->
+  <Enabled>true</Enabled>
+  <!-- 存档间隔（秒），1800 = 30 分钟 -->
+  <Interval>1800</Interval>
+  <!-- 存档前是否向全服发送 Global 聊天通知 -->
+  <NotifyPlayers>false</NotifyPlayers>
+  <!-- 通知消息颜色（NotifyPlayers=true 时生效） -->
+  <MessageColor>yellow</MessageColor>
+  <!-- 通知消息图标 URL -->
+  <MessageIconUrl></MessageIconUrl>
+  <!-- 最小允许间隔（秒），防止 Interval 设置过小 -->
+  <MinInterval>30</MinInterval>
+</AutoSaveSettings>

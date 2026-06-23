@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 模块配置示例（带中文注释）
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.config.xml
+  编码：UTF-8（推荐带 BOM）
+  热重载：/rocket reload（部分项需重启）
+-->
+<UnturnedSettings>
+  <!-- 是否验证玩家角色名（不符合规则则踢出） -->
+  <CharacterNameValidation>false</CharacterNameValidation>
+  <!-- 角色名正则规则（仅 CharacterNameValidation=true 时生效） -->
+  <CharacterNameValidationRule>([\x00-\xAA]|[\w_\ \.\+\-])+</CharacterNameValidationRule>
+  <!-- 是否向控制台记录可疑玩家移动（反作弊辅助日志） -->
+  <LogSuspiciousPlayerMovement>true</LogSuspiciousPlayerMovement>
+  <!-- 是否启用物品黑名单（配合 Rocket 物品限制逻辑） -->
+  <EnableItemBlacklist>false</EnableItemBlacklist>
+  <!-- 是否限制单次 /i 生成物品数量 -->
+  <EnableItemSpawnLimit>false</EnableItemSpawnLimit>
+  <!-- 单次 /i 最大生成数量（EnableItemSpawnLimit=true 时生效） -->
+  <MaxSpawnAmount>10</MaxSpawnAmount>
+  <!-- 是否启用载具黑名单 -->
+  <EnableVehicleBlacklist>false</EnableVehicleBlacklist>
+  <!-- 是否按 Permissions.config.xml 中权限组 Priority 显示玩家聊天颜色 -->
+  <EnableUnturnedPlayerColorFromPriorityGroup>false</EnableUnturnedPlayerColorFromPriorityGroup>
+  <!--
+    抑制无头专用服（-batchmode -nographics）下的 Shader / Null GPU 相关日志噪音
+    true：过滤 Unity 图形管线告警；false：保留完整 Unity 日志
+    仅影响 Unity 主日志，不影响 Rocket.log 与游戏逻辑错误
+  -->
+  <SuppressHeadlessGraphicsLogs>true</SuppressHeadlessGraphicsLogs>
+</UnturnedSettings>

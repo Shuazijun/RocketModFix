@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 内嵌 TPA 配置示例
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.TPA.config.xml
+  对照：RestoreMonarchy Teleportation 插件配置
+  热重载：/rocket reload
+-->
+<TpaSettings>
+  <!-- 是否启用内嵌 TPA（false 时 /tpa 不可用，战斗跟踪亦关闭） -->
+  <Enabled>false</Enabled>
+  <!-- TPA 相关聊天消息颜色 -->
+  <MessageColor>gray</MessageColor>
+  <!-- TPA 消息左侧图标 URL（留空则无图标） -->
+  <MessageIconUrl></MessageIconUrl>
+  <!-- 发送 TPA 请求后的冷却时间（秒） -->
+  <TpaCooldown>90</TpaCooldown>
+  <!-- 接受请求后延迟传送时间（秒） -->
+  <TpaDelay>3</TpaDelay>
+  <!-- TPA 请求有效期（秒），超时自动失效 -->
+  <TpaDuration>90</TpaDuration>
+  <!-- true：战斗中仍允许 TPA；false：战斗/受伤后进入战斗状态并限制传送 -->
+  <AllowCombat>false</AllowCombat>
+  <!-- 战斗状态持续时间（秒，AllowCombat=false 时生效） -->
+  <CombatDuration>20</CombatDuration>
+  <!-- true：突袭他人建筑时仍允许 TPA；false：破坏他人建筑后进入突袭状态 -->
+  <AllowRaid>false</AllowRaid>
+  <!-- 突袭状态持续时间（秒，AllowRaid=false 时生效） -->
+  <RaidDuration>30</RaidDuration>
+  <!-- true：洞穴内允许 TPA；false：地下/洞穴位置禁止传送 -->
+  <AllowCave>false</AllowCave>
+  <!-- true：使用不安全传送（可能卡墙）；false：尝试安全落点 -->
+  <UseUnsafeTeleport>false</UseUnsafeTeleport>
+  <!-- 延迟传送期间移动是否取消传送 -->
+  <CancelOnMove>true</CancelOnMove>
+  <!-- 判定“移动”的最大位移（米，CancelOnMove=true 时生效） -->
+  <MoveMaxDistance>0.5</MoveMaxDistance>
+</TpaSettings>

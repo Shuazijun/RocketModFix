@@ -1,40 +1,67 @@
-﻿using Rocket.Core.Logging;
+﻿using Rocket.Unturned.Chat;
+using Rocket.Unturned.Serialisation;
+using Rocket.Unturned.Teleport;
 using SDG.Unturned;
 using System;
 using UnityEngine;
 
 namespace Rocket.Unturned.Utils
 {
+    // Player notification inspired by educatalan02/AutoSaveKingModding (MIT).
     internal class AutomaticSaveWatchdog : MonoBehaviour
     {
+        private const int MinimumInterval = 30;
+
+        public static AutomaticSaveWatchdog Instance = null!;
+
+        private DateTime? nextSaveTime;
+        private int interval = MinimumInterval;
+        private bool saveEnabled;
+        private bool notifyPlayers;
+        private string messageColor = "yellow";
+        private string messageIconUrl = "";
+
+        private void Awake()
+        {
+            Instance = this;
+        }
+
         private void Update()
         {
             checkTimer();
         }
 
-        private DateTime? nextSaveTime = null;
-        public static AutomaticSaveWatchdog Instance;
-        private int interval = 30;
-
         private void Start()
         {
-            Instance = this;
-            if (U.Settings.Instance.AutomaticSave.Enabled)
-            {
-                if(U.Settings.Instance.AutomaticSave.Interval < interval)
-                {
-                    Core.Logging.Logger.LogError("AutomaticSave interval must be atleast 30 seconds, changed to 30 seconds");
-                }
-                else
-                {
-                    interval = U.Settings.Instance.AutomaticSave.Interval;
-                }
-                Core.Logging.Logger.Log(String.Format("This server will automatically save every {0} seconds", interval));
-                restartTimer();
-            }
+            ApplySettings();
         }
 
-        private void restartTimer ()
+        public void ApplySettings()
+        {
+            AutoSaveSettings settings = U.AutoSaveSettings.Instance;
+            saveEnabled = settings.Enabled;
+            notifyPlayers = settings.NotifyPlayers;
+            messageColor = settings.MessageColor;
+            messageIconUrl = settings.MessageIconUrl ?? "";
+            int minimumInterval = settings.MinInterval < 1 ? MinimumInterval : settings.MinInterval;
+            nextSaveTime = null;
+
+            if (!saveEnabled)
+            {
+                return;
+            }
+
+            interval = settings.Interval < minimumInterval ? minimumInterval : settings.Interval;
+            if (settings.Interval < minimumInterval)
+            {
+                Core.Logging.Logger.LogError($"AutoSave interval must be at least {minimumInterval} seconds, changed to {minimumInterval} seconds");
+            }
+
+            Core.Logging.Logger.Log($"This server will automatically save every {interval} seconds");
+            restartTimer();
+        }
+
+        private void restartTimer()
         {
             nextSaveTime = DateTime.Now.AddSeconds(interval);
         }
@@ -43,20 +70,35 @@ namespace Rocket.Unturned.Utils
         {
             try
             {
-                if (nextSaveTime != null)
+                if (!saveEnabled || nextSaveTime == null)
                 {
-                    if (nextSaveTime.Value < DateTime.Now)
-                    {
-                        Core.Logging.Logger.Log("Saving server");
-                        restartTimer();
-                        SaveManager.save();
-                    }
+                    return;
+                }
+
+                if (nextSaveTime.Value < DateTime.Now)
+                {
+                    NotifyPlayers();
+                    Core.Logging.Logger.Log("Saving server");
+                    restartTimer();
+                    SaveManager.save();
                 }
             }
             catch (Exception er)
             {
                 Core.Logging.Logger.LogException(er);
             }
+        }
+
+        private void NotifyPlayers()
+        {
+            if (!notifyPlayers)
+            {
+                return;
+            }
+
+            string message = TeleportMessageHelper.FormatMessage(U.Translate("autosave_notify"));
+            Color color = UnturnedChat.GetColorFromName(messageColor, Color.yellow);
+            ChatManager.serverSendMessage(message, color, null, null, EChatMode.GLOBAL, messageIconUrl, true);
         }
     }
 }

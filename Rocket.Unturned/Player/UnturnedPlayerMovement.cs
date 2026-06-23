@@ -28,7 +28,7 @@ namespace Rocket.Unturned
                 {
                     lastUpdate = DateTime.Now;
 
-                    Vector3 positon = movement.real;
+                    Vector3 positon = movement.transform.position;
 
                     if (lastVector.y != -1)
                     {
@@ -44,7 +44,7 @@ namespace Rocket.Unturned
                             Core.Logging.Logger.Log(Player.DisplayName + " moved x:" + positon.x + " y:" + positon.y + "(+" + y + ") z:" + positon.z + " in the last second (" + distance + ")");
                         }
                     }
-                    lastVector = movement.real;
+                    lastVector = movement.transform.position;
                 }
             }
         }

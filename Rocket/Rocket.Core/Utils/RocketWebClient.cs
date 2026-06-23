@@ -17,7 +17,7 @@ namespace Rocket.Core.Utils
             this.Timeout = timeout;
         }
 
-        protected override WebRequest GetWebRequest(Uri address)
+        protected override WebRequest? GetWebRequest(Uri address)
         {
             var request = base.GetWebRequest(address);
             if (request != null)

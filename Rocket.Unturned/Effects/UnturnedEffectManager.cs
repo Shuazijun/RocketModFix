@@ -18,28 +18,20 @@ namespace Rocket.Unturned.Effects
 
         public void Trigger(UnturnedPlayer player)
         {
+            Vector3 position = player.Player.transform.position;
             if (!Global)
             {
-                TriggerEffectParameters parameters = new TriggerEffectParameters(EffectID);
-                parameters.position = player.Player.transform.position;
-                parameters.relevantPlayerID = player.CSteamID;
-                EffectManager.triggerEffect(parameters);
+                UnturnedEffectUtility.Trigger(EffectID, position, player.Player.channel.owner);
             }
             else
             {
-                TriggerEffectParameters parameters = new TriggerEffectParameters(EffectID);
-                parameters.position = player.Player.transform.position;
-                parameters.relevantDistance = 1024.0f;
-                EffectManager.triggerEffect(parameters);
+                UnturnedEffectUtility.TriggerGlobal(EffectID, position);
             }
         }
 
         public void Trigger(Vector3 position)
         {
-            TriggerEffectParameters parameters = new TriggerEffectParameters(EffectID);
-            parameters.position = position;
-            parameters.relevantDistance = 1024.0f;
-            EffectManager.triggerEffect(parameters);
+            UnturnedEffectUtility.TriggerGlobal(EffectID, position);
         }
     }
 }

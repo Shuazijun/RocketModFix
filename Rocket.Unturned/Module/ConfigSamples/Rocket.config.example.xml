@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket 核心配置示例（带中文注释）
+  用法：
+    1. 复制到服务器 Rocket 目录：Servers/<实例>/Rocket/Rocket.config.xml
+    2. 或将本文件重命名为 Rocket.config.xml
+  注意：Rocket 启动时会重写配置文件以合并新增字段，XML 注释可能会丢失。
+        请保留本 example 文件作参考。
+  编码：请使用 UTF-8（推荐带 BOM）保存，以正确显示中文。
+-->
+<RocketSettings>
+  <!--
+    远程控制台 (RCON)
+    Enabled：是否启用 RCON
+    Port：RCON 监听端口（勿与游戏端口 27015 冲突）
+    Password：RCON 密码（请务必修改 changeme）
+    EnableMaxGlobalConnections / MaxGlobalConnections：限制全局最大连接数
+    EnableMaxLocalConnections / MaxLocalConnections：限制单 IP 最大连接数
+  -->
+  <RCON Enabled="false" Port="27115" Password="changeme" EnableMaxGlobalConnections="true" MaxGlobalConnections="10" EnableMaxLocalConnections="true" MaxLocalConnections="3" />
+  <!--
+    定时自动关闭服务器（与自动存档无关）
+    Enabled：是否启用
+    Interval：距启动后多少秒执行 Shutdown（86400 = 24 小时）
+  -->
+  <AutomaticShutdown Enabled="false" Interval="86400" />
+  <!--
+    从 Web 拉取远程 Rocket 配置（高级，一般关闭）
+    Enabled：是否启用
+    Url：远程 XML 配置地址
+  -->
+  <WebConfigurations Enabled="false" Url="" />
+  <!--
+    从 Web 拉取远程权限（高级，一般关闭）
+    Enabled：是否启用
+    Url：远程 Permissions XML 地址
+    Interval：拉取间隔（秒）
+  -->
+  <WebPermissions Enabled="false" Url="" Interval="180" />
+  <!--
+    语言代码（对应翻译文件 Rocket.{LanguageCode}.translation.xml）
+    英文：en  |  简体中文：zh（也接受 Schinese / zh-CN）
+  -->
+  <LanguageCode>zh</LanguageCode>
+  <!-- 目标帧率；-1 表示不限制，最小有效值为 10 -->
+  <MaxFrames>60</MaxFrames>
+  <!-- 插件配置是否使用 JSON 格式（false 则使用 XML） -->
+  <UseJsonForPlugins>false</UseJsonForPlugins>
+  <!-- 启动时预加载 Libraries/Plugins 中的 DLL，减少 Assembly Resolve 失败 -->
+  <PreloadLibraries>true</PreloadLibraries>
+  <!-- 找不到插件依赖时是否记录日志（每种依赖仅记录一次） -->
+  <LogMissingDependencies>false</LogMissingDependencies>
+  <!-- 是否打印全部已注册依赖路径（调试用，生产环境建议 false） -->
+  <LogDependencyRegistration>false</LogDependencyRegistration>
+</RocketSettings>

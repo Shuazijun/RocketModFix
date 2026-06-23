@@ -59,7 +59,7 @@ namespace Rocket.Unturned.Commands
             }
             else
             {
-                UnturnedPlayer otherPlayer = UnturnedPlayer.FromName(command[0]);
+                UnturnedPlayer? otherPlayer = UnturnedPlayer.FromName(command[0]);
                 if (otherPlayer != null)
                 {
                     otherPlayer.Heal(100);

@@ -1,16 +1,16 @@
 # Rocket.AutoInstaller
 
-Auto-installer for RocketModFix. Downloads and installs the latest version from GitHub, or installs from local builds for development.
+RocketModFix 自动安装器：从 GitHub Releases 下载并安装最新版，也支持指向本地构建产物以便开发测试。
 
-## Quick Start
+## 快速开始
 
-Just drop the module in your `Modules` folder and start your server. It will automatically download and install the latest RocketModFix.
+将模块文件夹放入服务器的 `Modules` 目录并启动。首次运行会自动下载并安装最新 RocketModFix。
 
-**Important:** Before using the auto-installer, remove any manually installed `Rocket.Unturned` from your `Modules` directory to avoid conflicts.
+**重要：** 使用前请删除手动安装的 `Modules/Rocket.Unturned`，避免与自动安装冲突。
 
-## Configuration
+## 配置
 
-Edit `config.json` to customize installation behavior:
+编辑模块目录下的 `config.json`：
 
 ```json
 {
@@ -23,57 +23,40 @@ Edit `config.json` to customize installation behavior:
 }
 ```
 
-### Options
+### 选项说明
 
-**For regular users:**
-- `BlockIfRocketInstalled` - Prevent installation if Rocket is already installed
-- `EnableRetry` - Enable retry mechanism for failed downloads (5 attempts, 5s delay)
-- `EnableCaching` - Enable file caching for faster startup and offline support
+**普通用户：**
 
-**For developers:**
-- `EnableCustomInstall` - Enable local installation instead of GitHub
-- `CustomInstallPath` - Path to your local build (see examples below)
-- `AutoInstallRocketFromExtras` - Auto-install from Extras folder
+- `BlockIfRocketInstalled` — 若已存在 Rocket 则阻止安装
+- `EnableRetry` — 下载失败时重试（约 5 次，间隔 5 秒）
+- `EnableCaching` — 启用缓存，加快启动并支持离线使用
 
-### Local Installation Examples
+**开发者：**
 
-For developers who want to test their own builds without manually copying files every time. The `CustomInstallPath` can point to:
+- `EnableCustomInstall` — 使用本地路径安装，不从 GitHub 下载
+- `CustomInstallPath` — 本地构建路径（见下方示例）
+- `AutoInstallRocketFromExtras` — 从 Extras 目录自动安装
 
-1. A zip file - Direct path to Rocket.Unturned.Module.zip
+### 本地安装路径示例
+
+`CustomInstallPath` 可指向：
+
+1. **Zip 文件**
    ```
-   "CustomInstallPath": "C:\\Builds\\Rocket.Unturned.Module.zip"
-   ```
-
-2. An unzipped folder - Directory containing the module files
-   ```
-   "CustomInstallPath": "C:\\Builds\\RocketModFix\\Rocket.Unturned"
+   "CustomInstallPath": "C:\\Builds\\Rocket.Unturned.zip"
    ```
 
-   The folder should contain either:
-   - Rocket.Unturned.dll directly, or
-   - Rocket.Unturned.Module.zip file, or
-   - Rocket.Unturned.dll in any subdirectory
+2. **已解压目录**（含 `Rocket.Unturned.dll`、子目录中的 dll，或目录内的 zip）
 
-3. Direct URI - Any HTTP/HTTPS URL pointing to a zip file
-   ```
-   "CustomInstallPath": "https://example.com/downloads/Rocket.Unturned.Module.zip"
-   ```
+3. **HTTP/HTTPS 直链**（指向 zip）
 
-   **Note:** GitHub Actions artifacts are currently not supported cause require authentication and aren't suitable for public downloads.
-   See [GitHub issue #51](https://github.com/actions/upload-artifact/issues/51) for details.
+   **注意：** GitHub Actions 构件需认证，不适合作为公开下载地址。
 
-## Plans
+## 功能状态
 
-If you want to implement one of the plans or have better ideas, feel free to let us know!
+- [x] 从 GitHub Releases 自动安装
+- [x] 本地构建自动安装（`EnableCustomInstall` + `CustomInstallPath`）
+- [x] 缓存与重试
+- [x] 已安装 Rocket 时可选阻止（`BlockIfRocketInstalled`）
 
-- [x] Auto-Install from GitHub Releases
-- [x] Auto-Install Local Build (no need to manually install RocketModFix every time you test/update it, 1 click to build, restart server, and you're testing!)
-	- [x] Json config with options:
-  		- [x] `EnableCustomInstall`: false/true (default is false)
-    	- [x] `CustomInstallPath`: path to a build of RocketModFix
-    - [x] `AutoInstallRocketFromExtras`: false/true (default is false) - Auto-install Rocket (LDM) from Extras
-    - [x] Fixed self-directory exclusion in Module code to prevent blocking the load process (see `BlockIfRocketInstalled`)!
-- [x] Caching
-	- [x] Check if GitHub release is newer than current cached version and ONLY then install new version, also use Retry (5 seconds, 5 attempts or so) in case of GitHub's down or problems with internet
-	- [x] For safe usage without Internet Connection
-- [x] ([Details](https://github.com/RocketModFix/RocketModFix/issues/119)) Block installation if Rocket already installed (`BlockIfRocketInstalled` in config)
+更多安装说明见仓库根目录 [README.md](../README.md)。

@@ -9,24 +9,24 @@ namespace Rocket.Core.Assets
 {
     public class WebXMLFileAsset<T> : Asset<T> where T : class
     {
-        private Uri url;
+        private Uri? url;
         private RocketWebClient webclient = new RocketWebClient();
         private System.Net.DownloadStringCompletedEventHandler handler = new System.Net.DownloadStringCompletedEventHandler((object sender, System.Net.DownloadStringCompletedEventArgs e) => { });
-        private XmlRootAttribute attr;
+        private XmlRootAttribute? attr;
         private bool waiting = false;
 
-        public WebXMLFileAsset(Uri url = null, XmlRootAttribute attr = null, AssetLoaded<T> callback = null)
+        public WebXMLFileAsset(Uri? url = null, XmlRootAttribute? attr = null, AssetLoaded<T>? callback = null)
         {
             this.url = url;
             this.attr = attr;
             Load(callback);
         }
 
-        public override void Load(AssetLoaded<T> callback = null)
+        public override void Load(AssetLoaded<T>? callback = null)
         {
             try
             {
-                if (!waiting)
+                if (!waiting && url != null)
                 {
                     Logger.Log(String.Format("Updating WebXMLFileAsset {0} from {1}", typeof(T).Name, url));
                     waiting = true;

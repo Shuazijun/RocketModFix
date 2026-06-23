@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 内嵌多 Home 配置示例
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.Homes.config.xml
+  对照：RestoreMonarchy MoreHomes 插件配置
+  Enabled=false 时 /home 保持原版单床行为
+  数据文件：Level/<地图>/RocketHomes.json（自动创建）
+  热重载：/rocket reload
+-->
+<HomeSettings>
+  <!-- 是否启用多 Home 系统（认领床、/homes、/destroyhome 等） -->
+  <Enabled>false</Enabled>
+  <!-- Homes 相关聊天消息颜色 -->
+  <MessageColor>yellow</MessageColor>
+  <!-- 消息图标 URL -->
+  <MessageIconUrl>https://i.imgur.com/9TF5aB1.png</MessageIconUrl>
+  <!-- 默认 /home 冷却时间（秒） -->
+  <DefaultHomeCooldown>20</DefaultHomeCooldown>
+  <!-- 默认传送延迟（秒） -->
+  <DefaultHomeDelay>10</DefaultHomeDelay>
+  <!-- 每名玩家默认可认领家园（床）数量上限 -->
+  <DefaultMaxHomes>2</DefaultMaxHomes>
+  <!-- 传送到床时的垂直偏移（米，避免卡进床模型） -->
+  <TeleportHeight>0.5</TeleportHeight>
+  <!-- 延迟传送期间移动是否取消 -->
+  <CancelOnMove>true</CancelOnMove>
+  <!-- 判定移动的最大位移（米） -->
+  <MoveMaxDistance>0.5</MoveMaxDistance>
+  <!-- true：禁止传送到地下床位；false：允许 -->
+  <BlockUnderground>false</BlockUnderground>
+  <!-- VIP 冷却覆盖：PermissionTag 对应 Permissions 中的权限名，Value 为秒数 -->
+  <VipCooldowns>
+    <VIPPermission PermissionTag="rocket.homes.vip" Value="10" />
+    <VIPPermission PermissionTag="rocket.homes.star" Value="5" />
+  </VipCooldowns>
+  <!-- VIP 传送延迟覆盖（秒） -->
+  <VipDelays>
+    <VIPPermission PermissionTag="rocket.homes.vip" Value="5" />
+    <VIPPermission PermissionTag="rocket.homes.star" Value="3" />
+  </VipDelays>
+  <!-- VIP 最大家园数量覆盖 -->
+  <VipMaxHomes>
+    <VIPPermission PermissionTag="rocket.homes.vip" Value="3" />
+    <VIPPermission PermissionTag="rocket.homes.star" Value="4" />
+  </VipMaxHomes>
+</HomeSettings>

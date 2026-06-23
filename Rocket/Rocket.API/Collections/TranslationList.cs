@@ -13,9 +13,9 @@ namespace Rocket.API.Collections
     public class TranslationListEntry
     {
         [XmlAttribute]
-        public string Id;
+        public string Id = "";
         [XmlAttribute]
-        public string Value;
+        public string Value = "";
 
         public TranslationListEntry(string id, string value)
         {

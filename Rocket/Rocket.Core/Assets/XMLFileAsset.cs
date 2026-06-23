@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using Rocket.API;
 using System.Xml.Serialization;
+using Rocket.Core.Utils;
 
 namespace Rocket.Core.Assets
 {
@@ -10,9 +11,9 @@ namespace Rocket.Core.Assets
     {
         private XmlSerializer serializer;
         private string file;
-        T defaultInstance;
+        T? defaultInstance;
 
-        public XMLFileAsset(string file, Type[] extraTypes = null, T defaultInstance = null)
+        public XMLFileAsset(string file, Type[]? extraTypes = null, T? defaultInstance = null)
         {
             serializer = new XmlSerializer(typeof(T), extraTypes);
             this.file = file;
@@ -26,7 +27,7 @@ namespace Rocket.Core.Assets
             {
                 string directory = Path.GetDirectoryName(file);
                 if (!String.IsNullOrEmpty(directory) && !Directory.Exists(directory)) Directory.CreateDirectory(directory);
-                using (StreamWriter writer = new StreamWriter(file))
+                using (StreamWriter writer = new StreamWriter(file, false, RocketFileEncoding.Utf8WithBom))
                 {
                     if (instance == null)
                     {
@@ -50,13 +51,15 @@ namespace Rocket.Core.Assets
             }
         }
 
-        public override void Load(AssetLoaded<T> callback = null)
+        public override void Load(AssetLoaded<T>? callback = null)
         {
             try
             {
+                ConfigSampleHelper.TryCopySample(file);
+
                 if (!String.IsNullOrEmpty(file) && File.Exists(file))
                 {
-                    using (StreamReader reader = new StreamReader(file))
+                    using (StreamReader reader = new StreamReader(file, RocketFileEncoding.Utf8WithBom, detectEncodingFromByteOrderMarks: true))
                     {
                         instance = (T)serializer.Deserialize(reader);
                     }

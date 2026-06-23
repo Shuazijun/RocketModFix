@@ -7,7 +7,7 @@ namespace Rocket.API.Extensions
 {
     public static class RocketCommandExtensions
     {
-        public static string GetStringParameter(this string[] array, int index)
+        public static string? GetStringParameter(this string[] array, int index)
         {
             return (array.Length <= index || String.IsNullOrEmpty(array[index])) ? null : array[index];
         }
@@ -42,7 +42,7 @@ namespace Rocket.API.Extensions
             return (array.Length <= index || !float.TryParse(array[index].ToString(), out output)) ? null : (float?)output;
         }
 
-        public static string GetParameterString(this string[] array, int startingIndex = 0)
+        public static string? GetParameterString(this string[] array, int startingIndex = 0)
         {
             if (array.Length - startingIndex <= 0) return null;
             return string.Join(" ", array.ToList().GetRange(startingIndex, array.Length - startingIndex).ToArray());

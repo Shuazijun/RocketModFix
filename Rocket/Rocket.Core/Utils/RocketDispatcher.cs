@@ -44,7 +44,7 @@ namespace Rocket.Core.Utils
             }
         }
 
-        public static Thread RunAsync(Action a)
+        public static Thread? RunAsync(Action a)
         {
             while (numThreads >= 8)
             {

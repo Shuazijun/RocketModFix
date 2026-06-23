@@ -11,7 +11,7 @@ namespace Rocket.Core.Permissions
 {
     public sealed class RocketPermissionsManager : MonoBehaviour, IRocketPermissionsProvider
     {
-        private RocketPermissionsHelper helper;
+        private RocketPermissionsHelper helper = null!;
 
         private void Start()
         {

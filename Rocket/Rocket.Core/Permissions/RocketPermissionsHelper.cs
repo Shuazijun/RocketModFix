@@ -19,10 +19,15 @@ namespace Rocket.Core.Permissions
         public List<RocketPermissionsGroup> GetGroupsByIds(List<string> ids) => this.permissions.Instance.Groups.OrderBy(x => x.Priority)
             .Where(g => ids.Select(i => i.ToLower()).Contains(g.Id.ToLower())).ToList();
 
-        public List<string> GetParentGroups(string parentGroup, string currentGroup)
+        public List<string> GetParentGroups(string? parentGroup, string currentGroup)
         {
             var allGroups = new List<string>();
-            RocketPermissionsGroup group = this.permissions.Instance.Groups.OrderBy(x => x.Priority)
+            if (string.IsNullOrEmpty(parentGroup))
+            {
+                return allGroups;
+            }
+
+            RocketPermissionsGroup? group = this.permissions.Instance.Groups.OrderBy(x => x.Priority)
                 .FirstOrDefault(g => string.Equals(g.Id, parentGroup, StringComparison.CurrentCultureIgnoreCase));
 
             if (group == null || string.Equals(group.Id, currentGroup, StringComparison.CurrentCultureIgnoreCase)) { return allGroups; }
@@ -141,8 +146,8 @@ namespace Rocket.Core.Permissions
                                                       .ToList() ?? new List<RocketPermissionsGroup>();
 
             // get first default group
-            RocketPermissionsGroup defaultGroup = this.permissions.Instance?.Groups?.OrderBy(x => x.Priority)
-                .FirstOrDefault(g => string.Equals(g.Id, this.permissions.Instance.DefaultGroup, StringComparison.CurrentCultureIgnoreCase));
+            RocketPermissionsGroup? defaultGroup = this.permissions.Instance?.Groups?.OrderBy(x => x.Priority)
+                .FirstOrDefault(g => string.Equals(g.Id, this.permissions.Instance!.DefaultGroup, StringComparison.CurrentCultureIgnoreCase));
 
             // if exists, add to player groups
             if (defaultGroup != null) { groups.Add(defaultGroup); }

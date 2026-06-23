@@ -54,12 +54,6 @@ namespace Rocket.Unturned.Commands
                 throw new WrongUsageOfCommandException(caller, this);
             }
 
-            //if (player.Stance == EPlayerStance.DRIVING || player.Stance == EPlayerStance.SITTING)
-            //{
-            //    UnturnedChat.Say(player, U.Translate("command_generic_teleport_while_driving_error"));
-            //    throw new WrongUsageOfCommandException(caller, this);
-            //}
-
             float? x = null;
             float? y = null;
             float? z = null;
@@ -72,14 +66,13 @@ namespace Rocket.Unturned.Commands
             }
             if (x != null && y != null && z != null)
             {
-                //player.Teleport(new Vector3((float)x, (float)y, (float)z), MeasurementTool.angleToByte(player.Rotation));
                 player.Player.teleportToLocationUnsafe(new Vector3((float)x, (float)y, (float)z), MeasurementTool.angleToByte(player.Rotation));
                 Core.Logging.Logger.Log(U.Translate("command_tp_teleport_console", player.CharacterName, (float)x + "," + (float)y + "," + (float)z));
                 UnturnedChat.Say(player, U.Translate("command_tp_teleport_private", (float)x + "," + (float)y + "," + (float)z));
             }
             else
             {
-                UnturnedPlayer otherplayer = UnturnedPlayer.FromName(command[0]);
+                UnturnedPlayer? otherplayer = UnturnedPlayer.FromName(command[0]);
                 if (otherplayer != null /*&& otherplayer != player*/)
                 {
                     //player.Teleport(otherplayer);

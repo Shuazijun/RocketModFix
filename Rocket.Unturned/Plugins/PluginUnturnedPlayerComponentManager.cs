@@ -15,7 +15,7 @@ namespace Rocket.Unturned.Plugins
 {
     public sealed class PluginUnturnedPlayerComponentManager : MonoBehaviour
     {
-        private Assembly assembly;
+        private Assembly assembly = null!;
         private List<Type> unturnedPlayerComponents = new List<Type>();
 
         private void OnDisable()

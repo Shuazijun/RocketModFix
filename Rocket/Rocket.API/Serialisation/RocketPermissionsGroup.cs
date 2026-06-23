@@ -9,24 +9,26 @@ namespace Rocket.API.Serialisation
     {
         public RocketPermissionsGroup()
         {
+            Members = new List<string>();
+            permissions = new List<Permission>();
         }
 
-        public RocketPermissionsGroup(string id, string displayName, string parentGroup, List<string> members, List<Permission> permissions, string color = null, short priority = 100)
+        public RocketPermissionsGroup(string id, string displayName, string? parentGroup, List<string> members, List<Permission> permissions, string? color = null, short priority = 100)
         {
             Id = id;
             DisplayName = displayName;
             Members = members;
             Permissions = permissions;
             ParentGroup = parentGroup;
-            Color = color;
+            Color = color ?? "white";
             Priority = priority;
         }
 
         [XmlElement("Id")]
-        public string Id;
+        public string Id = "";
 
         [XmlElement("DisplayName")]
-        public string DisplayName;
+        public string DisplayName = "";
 
         [XmlElement("Prefix")]
         public string Prefix ="";
@@ -39,11 +41,11 @@ namespace Rocket.API.Serialisation
 
         [XmlArray("Members")]
         [XmlArrayItem(ElementName = "Member")]
-        public List<string> Members;
+        public List<string> Members = new List<string>();
 
         [XmlArray("Commands")]
         [XmlArrayItem(ElementName = "Command")]
-        public List<Permission> OldPermissions;
+        public List<Permission>? OldPermissions;
 
         public bool ShouldSerializeOldPermissions()
         {
@@ -52,7 +54,7 @@ namespace Rocket.API.Serialisation
 
         [XmlArray("Permissions")]
         [XmlArrayItem(ElementName = "Permission")]
-        private List<Permission> permissions;
+        private List<Permission> permissions = new List<Permission>();
         public List<Permission> Permissions
         {
             get {
@@ -71,7 +73,7 @@ namespace Rocket.API.Serialisation
 
 
         [XmlElement("ParentGroup")]
-        public string ParentGroup;
+        public string? ParentGroup;
 
         [XmlElement("Priority")]
         public short Priority = 100;

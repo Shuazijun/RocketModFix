@@ -9,7 +9,7 @@
     <Version>$(RocketModFixVersion)</Version>
     <InformationalVersion>$(RocketModFixVersion)</InformationalVersion>
     <Copyright>RocketModFix and their contributors</Copyright>
-    <RepositoryUrl>https://github.com/RocketModFix/RocketModFix</RepositoryUrl>
+    <RepositoryUrl>https://github.com/Shuazijun/RocketModFix</RepositoryUrl>
     <LangVersion>preview</LangVersion>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
@@ -22,7 +22,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
-    <PackageProjectUrl>https://github.com/RocketModFix/RocketModFix</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/Shuazijun/RocketModFix</PackageProjectUrl>
     <PackageOwners>RocketModFix;</PackageOwners>
     <PackageVersion>$(RocketModFixVersion)</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

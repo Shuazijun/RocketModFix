@@ -196,10 +196,10 @@ namespace Rocket.AutoInstaller.Installation
 
     public class CacheEntry
     {
-        public string TagName { get; set; }
-        public string Name { get; set; }
+        public string TagName { get; set; } = "";
+        public string Name { get; set; } = "";
         public DateTime PublishedAt { get; set; }
-        public string DownloadUrl { get; set; }
+        public string DownloadUrl { get; set; } = "";
         public int FileSize { get; set; }
         public DateTime CachedAt { get; set; }
 

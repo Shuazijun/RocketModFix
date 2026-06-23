@@ -11,48 +11,59 @@ namespace Rocket.Unturned.Events
 {
     public sealed class UnturnedEvents : MonoBehaviour, IRocketImplementationEvents
     {
-        private static UnturnedEvents Instance;
+        private static UnturnedEvents Instance = null!;
         private void Awake()
         {
             Instance = this;
             Provider.onServerDisconnected += (CSteamID r) => {
                 if (r != CSteamID.Nil)
                 {
-                    OnPlayerDisconnected.TryInvoke(UnturnedPlayer.FromCSteamID(r));
+                    UnturnedPlayer? disconnected = UnturnedPlayer.FromCSteamID(r);
+                    if (disconnected != null)
+                    {
+                        OnPlayerDisconnected.TryInvoke(disconnected);
+                    }
                 }
             };
             Provider.onServerShutdown += () => { onShutdown.TryInvoke(); };
             Provider.onServerConnected += (CSteamID r) => {
                 if (r != CSteamID.Nil)
                 {
-                    UnturnedPlayer p = (UnturnedPlayer)UnturnedPlayer.FromCSteamID(r);
+                    UnturnedPlayer? p = UnturnedPlayer.FromCSteamID(r);
+                    if (p == null)
+                    {
+                        return;
+                    }
                     p.Player.gameObject.TryAddComponent<UnturnedPlayerFeatures>();
                     p.Player.gameObject.TryAddComponent<UnturnedPlayerMovement>();
                     p.Player.gameObject.TryAddComponent<UnturnedPlayerEvents>();
                     OnBeforePlayerConnected.TryInvoke(p);
                 }
             };
-            DamageTool.playerDamaged += (SDG.Unturned.Player player, ref EDeathCause cause, ref ELimb limb, ref CSteamID killer, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage) =>
+            DamageTool.damagePlayerRequested += (ref DamagePlayerParameters parameters, ref bool shouldAllow) =>
             {
-                if (OnPlayerDamaged != null)
+                if (OnPlayerDamaged != null && parameters.player != null && parameters.killer != CSteamID.Nil)
                 {
-                    if (player != null && killer != CSteamID.Nil && killer != null)
+                    UnturnedPlayer getterDamage = UnturnedPlayer.FromPlayer(parameters.player);
+                    UnturnedPlayer? senderDamage = UnturnedPlayer.FromCSteamID(parameters.killer);
+                    if (senderDamage == null)
                     {
-                        UnturnedPlayer getterDamage = UnturnedPlayer.FromPlayer(player);
-                        UnturnedPlayer senderDamage = UnturnedPlayer.FromCSteamID(killer);
-                        OnPlayerDamaged.TryInvoke(getterDamage, cause, limb, senderDamage, direction, damage, times, canDamage);
+                        return;
                     }
+                    bool canDamage = shouldAllow;
+                    OnPlayerDamaged.TryInvoke(getterDamage, parameters.cause, parameters.limb, senderDamage, parameters.direction, parameters.damage, parameters.times, canDamage);
+                    shouldAllow = canDamage;
                 }
             };
         }
 
         public delegate void PlayerDisconnected(UnturnedPlayer player);
-        public event PlayerDisconnected OnPlayerDisconnected;
+        public event PlayerDisconnected OnPlayerDisconnected = null!;
 
         public delegate void OnPlayerGetDamage(UnturnedPlayer player, ref EDeathCause cause, ref ELimb limb, ref UnturnedPlayer killer, ref Vector3 direction, ref float damage, ref float times, ref bool canDamage);
-        public static event OnPlayerGetDamage OnPlayerDamaged;
+        public static event OnPlayerGetDamage OnPlayerDamaged = null!;
 
-        private event ImplementationShutdown onShutdown;
+        private event ImplementationShutdown onShutdown = null!;
         public event ImplementationShutdown OnShutdown
         {
             add
@@ -72,7 +83,7 @@ namespace Rocket.Unturned.Events
         }
 
         public delegate void PlayerConnected(UnturnedPlayer player);
-        public event PlayerConnected OnPlayerConnected;
-        public event PlayerConnected OnBeforePlayerConnected;
+        public event PlayerConnected OnPlayerConnected = null!;
+        public event PlayerConnected OnBeforePlayerConnected = null!;
     }
 }

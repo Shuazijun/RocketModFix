@@ -6,34 +6,34 @@ namespace Rocket.AutoInstaller.Installation
     public class GitHubAsset
     {
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [JsonProperty("content_type")]
-        public string ContentType { get; set; }
+        public string ContentType { get; set; } = "";
 
         [JsonProperty("size")]
         public int Size { get; set; }
 
         [JsonProperty("browser_download_url")]
-        public string BrowserDownloadUrl { get; set; }
+        public string BrowserDownloadUrl { get; set; } = "";
     }
 
     public class GitHubRelease
     {
         [JsonProperty("url")]
-        public string Url { get; set; }
+        public string Url { get; set; } = "";
 
         [JsonProperty("tag_name")]
-        public string TagName { get; set; }
+        public string TagName { get; set; } = "";
 
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = "";
 
         [JsonProperty("body")]
-        public string Body { get; set; }
+        public string Body { get; set; } = "";
 
         [JsonProperty("draft")]
         public bool Draft { get; set; }
@@ -45,6 +45,6 @@ namespace Rocket.AutoInstaller.Installation
         public DateTime PublishedAt { get; set; }
 
         [JsonProperty("assets")]
-        public GitHubAsset[] Assets { get; set; }
+        public GitHubAsset[] Assets { get; set; } = Array.Empty<GitHubAsset>();
     }
 }

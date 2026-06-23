@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Rocket.Unturned 命令别名配置示例
+  用法：复制到 Servers/<实例>/Rocket/Rocket.Unturned.CommandAlias.config.xml
+  说明：为已有命令添加中文或其他别名；聊天与控制台均生效
+  修改后需重启服务器；启动时会自动合并新增命令，不会删除已填别名
+-->
+<CommandAliasSettings>
+  <!-- 是否启用命令别名解析 -->
+  <Enabled>true</Enabled>
+  <Commands>
+    <!--
+      单条命令别名定义
+      Name：原命令名（不含 /）
+      Class：命令类全名（用于与程序集内 IRocketCommand 匹配）
+      Syntax：帮助用语法说明
+      AllowedCaller：Player | Console | Both
+      Permissions：所需权限（逗号分隔，与命令默认权限一致）
+    -->
+    <Command Name="home" Class="Rocket.Unturned.Commands.CommandHome"
+             Syntax="[name]" AllowedCaller="Player"
+             Permissions="rocket.home">
+      <Aliases>
+        <!-- 无 Target：整命令别名，等价于 /home -->
+        <Alias>回家</Alias>
+      </Aliases>
+    </Command>
+    <Command Name="tpa" Class="Rocket.Unturned.Commands.CommandTpa"
+             Syntax="&lt;player|accept|deny|cancel&gt;" AllowedCaller="Player"
+             Permissions="rocket.tpa">
+      <Aliases>
+        <!-- 无 Target：/传送 等价于 /tpa -->
+        <Alias>传送</Alias>
+        <!-- Target：子参数别名，/同意 等价于 /tpa accept -->
+        <Alias Target="accept">同意</Alias>
+        <Alias Target="deny">拒绝</Alias>
+        <Alias Target="cancel">取消传送</Alias>
+      </Aliases>
+    </Command>
+  </Commands>
+</CommandAliasSettings>

@@ -5,7 +5,7 @@ namespace Rocket.Unturned.Player
 {
     public class UnturnedPlayerComponent : MonoBehaviour
     {
-        private UnturnedPlayer player;
+        private UnturnedPlayer player = null!;
         public UnturnedPlayer Player
         {
             get { return player; }

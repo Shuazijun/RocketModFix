@@ -16,7 +16,7 @@ namespace Rocket.Core.Utils
 
         private DateTime? shutdownTime = null;
         private bool shutdown = false;
-        public static AutomaticShutdownWatchdog Instance;
+        public static AutomaticShutdownWatchdog Instance = null!;
         private bool started = false;
         private DateTime startedTime = DateTime.Now;
 

@@ -1,6 +1,7 @@
 ﻿using SDG.Unturned;
 using Steamworks;
 using System;
+using System.Threading;
 using UnityEngine;
 using System.Linq;
 using Rocket.Unturned.Events;
@@ -10,6 +11,7 @@ using Rocket.Unturned.Chat;
 using Rocket.Unturned.Skills;
 using Rocket.Core.Steam;
 using Rocket.API.Serialisation;
+using Rocket.Unturned.Effects;
 
 namespace Rocket.Unturned.Player
 {
@@ -50,19 +52,22 @@ namespace Rocket.Unturned.Player
             }
         }
 
-        private Profile _steamProfile;
+        private Profile? _steamProfile;
 
         public Profile SteamProfile
         {
             get
             {
                 if (_steamProfile == null)
+                {
                     _steamProfile = new Profile(CSteamID.m_SteamID);
+                    ThreadPool.QueueUserWorkItem(_ => _steamProfile.Reload());
+                }
                 return _steamProfile;
             }
         }
 
-        private SDG.Unturned.Player player;
+        private SDG.Unturned.Player player = null!;
         public SDG.Unturned.Player Player
         {
             get { return player; }
@@ -73,7 +78,7 @@ namespace Rocket.Unturned.Player
             get { return player.channel.owner.playerID.steamID; }
         }
 
-        public Exception PlayerIsConsoleException;
+        public Exception? PlayerIsConsoleException;
 
         private UnturnedPlayer(SteamPlayer player)
         {
@@ -140,7 +145,7 @@ namespace Rocket.Unturned.Player
             }
         }
 
-        public bool Equals(UnturnedPlayer otherPlayer)
+        public bool Equals(UnturnedPlayer? otherPlayer)
         {
             if(ReferenceEquals(otherPlayer, null))
             {
@@ -178,10 +183,10 @@ namespace Rocket.Unturned.Player
             player = p;
         }
 
-        public static UnturnedPlayer FromName(string name)
+        public static UnturnedPlayer? FromName(string name)
         {
             if (String.IsNullOrEmpty(name)) return null;
-            SDG.Unturned.Player p = null;
+            SDG.Unturned.Player? p = null;
             ulong id = 0;
             if (ulong.TryParse(name, out id) && id > 76561197960265728)
             {
@@ -195,7 +200,7 @@ namespace Rocket.Unturned.Player
             return new UnturnedPlayer(p);
         }
 
-        public static UnturnedPlayer FromCSteamID(CSteamID cSteamID)
+        public static UnturnedPlayer? FromCSteamID(CSteamID cSteamID)
         {
             if (string.IsNullOrEmpty(cSteamID.ToString()) || cSteamID.ToString() == "0")
             {
@@ -234,10 +239,7 @@ namespace Rocket.Unturned.Player
 
         public void TriggerEffect(ushort effectID)
         {
-            TriggerEffectParameters parameters = new TriggerEffectParameters(effectID);
-            parameters.position = player.transform.position;
-            parameters.relevantPlayerID = CSteamID;
-            EffectManager.triggerEffect(parameters);
+            UnturnedEffectUtility.Trigger(effectID, player.transform.position, player.channel.owner);
         }
 
         public string IP
@@ -334,7 +336,7 @@ namespace Rocket.Unturned.Player
                 ipToBan = 0;
             }
 
-            Provider.requestBanPlayer(instigator, steamIdToBan, ipToBan, reason, duration);
+            Provider.requestBanPlayer(instigator, steamIdToBan, ipToBan, null, reason, duration);
         }
 
         public void Admin(bool admin)
@@ -342,7 +344,7 @@ namespace Rocket.Unturned.Player
             Admin(admin, null);
         }
 
-        public void Admin(bool admin, UnturnedPlayer issuer)
+        public void Admin(bool admin, UnturnedPlayer? issuer)
         {
             if (admin)
             {
@@ -370,9 +372,20 @@ namespace Rocket.Unturned.Player
 
         public void Teleport(Vector3 position, float rotation)
         {
-            // In older versions Rocket had a special case for "vanish" mode, but now the vanilla game will
-            // only send teleport to all clients if canAddSimulationResultsToUpdates is true.
+            // Teleport replication requires movement updates; briefly re-enable while vanished.
+            PlayerMovement movement = player.movement;
+            bool restoreVanish = VanishMode;
+            if (restoreVanish)
+            {
+                movement.canAddSimulationResultsToUpdates = true;
+            }
+
             player.teleportToLocation(position, rotation);
+
+            if (restoreVanish)
+            {
+                movement.canAddSimulationResultsToUpdates = false;
+            }
         }
 
         public bool VanishMode
@@ -581,7 +594,7 @@ namespace Rocket.Unturned.Player
 
         public void Suicide()
         {
-            player.life.askSuicide(player.channel.owner.playerID.steamID);
+            player.life.ReceiveSuicideRequest();
         }
 
         public EPlayerKill Damage(byte amount, Vector3 direction, EDeathCause cause, ELimb limb, CSteamID damageDealer)

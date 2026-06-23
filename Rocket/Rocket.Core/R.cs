@@ -19,16 +19,16 @@ namespace Rocket.Core
     public class R : MonoBehaviour
     {
         public delegate void RockedInitialized();
-        public static event RockedInitialized OnRockedInitialized;
+        public static event RockedInitialized OnRockedInitialized = null!;
 
-        public static R Instance;
-        public static IRocketImplementation Implementation;
+        public static R Instance = null!;
+        public static IRocketImplementation Implementation = null!;
 
-        public static XMLFileAsset<RocketSettings> Settings = null;
-        public static XMLFileAsset<TranslationList> Translation = null;
-        public static IRocketPermissionsProvider Permissions = null;
-        public static RocketPluginManager Plugins = null;
-        public static RocketCommandManager Commands = null;
+        public static XMLFileAsset<RocketSettings> Settings = null!;
+        public static XMLFileAsset<TranslationList> Translation = null!;
+        public static IRocketPermissionsProvider Permissions = null!;
+        public static RocketPluginManager Plugins = null!;
+        public static RocketCommandManager Commands = null!;
         
         private static readonly TranslationList defaultTranslations = new TranslationList(){
                 {"rocket_join_public","{0} connected to the server" },
@@ -41,7 +41,11 @@ namespace Rocket.Core
                 { "command_rflush_total", "Closing {0} RCON connections." },
                 { "command_rflush_line", "#{0}, ConnectionID: {1}, Address: {2}, closed!" },
                 {"command_no_permission","You do not have permissions to execute this command."},
-                {"command_cooldown","You have to wait {0} seconds before you can use this command again."}
+                {"command_cooldown","You have to wait {0} seconds before you can use this command again."},
+                {"command_not_found","Command not found."},
+                {"command_wrong_usage","Wrong usage for /{0}. Syntax: {1}"},
+                {"command_executed","Command executed successfully."},
+                {"command_failed","Command failed or was rejected."}
         };
          
         private void Awake()
@@ -70,7 +74,8 @@ namespace Rocket.Core
                 };
                 
                 Settings = new XMLFileAsset<RocketSettings>(Environment.SettingsFile);
-                Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, Settings.Instance.LanguageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
+                string languageCode = LanguageCodeHelper.Normalize(Settings.Instance.LanguageCode);
+                Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, languageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
                 defaultTranslations.AddUnknownEntries(Translation);
                 Permissions = gameObject.TryAddComponent<RocketPermissionsManager>();
                 Plugins = gameObject.TryAddComponent<RocketPluginManager>();

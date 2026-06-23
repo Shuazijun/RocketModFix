@@ -55,7 +55,7 @@ namespace Rocket.Unturned.Commands
             ushort? id = command.GetUInt16Parameter(0);
             if (!id.HasValue)
             {
-                string itemString = command.GetStringParameter(0);
+                string? itemString = command.GetStringParameter(0);
 
                 if (itemString == null)
                 {

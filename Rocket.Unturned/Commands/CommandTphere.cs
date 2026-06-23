@@ -50,17 +50,9 @@ namespace Rocket.Unturned.Commands
                 UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
                 throw new WrongUsageOfCommandException(caller, this);
             }
-            UnturnedPlayer otherPlayer = UnturnedPlayer.FromName(command[0]);
-            if (otherPlayer != null /* && otherPlayer != caller*/)
+            UnturnedPlayer? otherPlayer = UnturnedPlayer.FromName(command[0]);
+            if (otherPlayer != null)
             {
-                //if(otherPlayer.IsInVehicle)
-                //{
-                //	UnturnedChat.Say(caller, U.Translate("command_tphere_vehicle"));
-                //	return;
-                //}
-
-                //otherPlayer.Teleport(player);
-
                 otherPlayer.Player.teleportToLocationUnsafe(player.Position, player.Rotation);
 
                 Logger.Log(U.Translate("command_tphere_teleport_console", otherPlayer.CharacterName, player.CharacterName));

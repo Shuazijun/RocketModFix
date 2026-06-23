@@ -140,7 +140,7 @@ namespace Rocket.Core.Logging
             LogException(ex);
         }
 
-        public static void LogException(Exception ex,string message = null)
+        public static void LogException(Exception ex, string? message = null)
         {
             string source = "";
             string assembly = "";

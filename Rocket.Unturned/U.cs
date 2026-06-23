@@ -2,6 +2,7 @@
 using Rocket.API.Collections;
 using Rocket.API.Extensions;
 using Rocket.Core;
+using Rocket.Core.RCON;
 using Rocket.Core.Assets;
 using Rocket.Core.Extensions;
 using Rocket.Core.Logging;
@@ -14,7 +15,11 @@ using Rocket.Unturned.Permissions;
 using Rocket.Unturned.Player;
 using Rocket.Unturned.Plugins;
 using Rocket.Unturned.Serialisation;
+using Rocket.Unturned.Homes;
+using Rocket.Unturned.Teleport;
+using Rocket.Unturned.Warps;
 using Rocket.Unturned.Utils;
+using Rocket.Core.Utils;
 using SDG.Framework.Modules;
 using SDG.Unturned;
 using Steamworks;
@@ -28,8 +33,8 @@ namespace Rocket.Unturned
 {
     public class U : MonoBehaviour, IRocketImplementation, IModuleNexus
     {
-        private static GameObject rocketGameObject;
-        public static U Instance;
+        private static GameObject rocketGameObject = null!;
+        public static U Instance = null!;
 
         private static readonly TranslationList defaultTranslations = new TranslationList(){
             { "command_generic_failed_find_player","Failed to find player"},
@@ -42,7 +47,6 @@ namespace Rocket.Unturned
                 { "command_unadmin_player_invalid","Player {0} is not invalid or not found."},
                 { "command_unadmin_player_is_not_admin","Player {0} is not an admin."},
                 { "command_unadmin_success","Successfully unadmined {0}"},
-                //{ "command_generic_teleport_while_driving_error","You cannot teleport while driving or riding in a vehicle."},
                 { "command_god_enable_console","{0} enabled Godmode"},
                 { "command_god_enable_private","You can feel the strength now..."},
                 { "command_god_disable_console","{0} disabled Godmode"},
@@ -56,7 +60,6 @@ namespace Rocket.Unturned
                 { "command_duty_disable_console","{0} is no longer in duty"},
                 { "command_duty_disable_private","You are no longer in duty..."},
                 { "command_bed_no_bed_found_private","You do not have a bed to teleport to."},
-                //{ "command_bed_obstructed","Your bed is obstructed."},
                 { "command_i_too_much","You have tried to spawn too many items! The limit is {0}." },
                 { "command_i_blacklisted","This item is restricted!" },
                 { "command_i_giving_console","Giving {0} item {1}:{2}"},
@@ -77,7 +80,6 @@ namespace Rocket.Unturned
                 { "command_tp_teleport_console","{0} teleported to {1}"},
                 { "command_tp_teleport_private","Teleported to {0}"},
                 { "command_tp_failed_find_destination","Failed to find destination"},
-                //{ "command_tphere_vehicle", "The player you are trying to teleport is in a vehicle"},
                 { "command_tphere_teleport_console","{0} was teleported to {1}"},
                 { "command_tphere_teleport_from_private","Teleported {0} to you"},
                 { "command_tphere_teleport_to_private","You were teleported to {0}"},
@@ -121,56 +123,146 @@ namespace Rocket.Unturned
                 { "command_more_usage", "Usage: /more <amount>" },
                 { "command_more_dequipped", "No item being held in hands." },
                 { "command_more_give", "Giving {0} of item: {1}." },
+                { "command_itemlist_success_console", "Exported {0} items to {1}"},
+                { "command_itemlist_success_player", "Exported {0} items. File saved on server: {1}"},
+                { "command_itemlist_failed", "Failed to export item list: {0}"},
+                { "tpa_target_not_found", "Target player not found" },
+                { "tpa_combat_start", "You entered combat mode" },
+                { "tpa_combat_expire", "Combat mode ended" },
+                { "tpa_raid_start", "You entered raid mode" },
+                { "tpa_raid_expire", "Raid mode ended" },
+                { "tpa_help", "[[b]]TPA commands:[[/b]]&#xA;/tpa [player] - send request&#xA;/tpa accept - accept&#xA;/tpa deny - deny&#xA;/tpa cancel - cancel" },
+                { "tpa_cooldown", "Wait [[b]]{0}[[/b]] seconds before sending another request" },
+                { "tpa_duplicate", "You already have a pending request to that player" },
+                { "tpa_sent", "Sent a teleport request to [[b]]{0}[[/b]]" },
+                { "tpa_receive", "[[b]]{0}[[/b]] wants to teleport to you&#xA;Type [[b]]/tpa accept[[/b]] to accept" },
+                { "tpa_no_request", "You have no pending TPA request" },
+                { "tpa_accepted", "Accepted [[b]]{0}[[/b]]'s teleport request" },
+                { "tpa_delay", "Teleporting to [[b]]{0}[[/b]] in [[b]]{1}[[/b]] seconds..." },
+                { "tpa_while_combat", "Teleport failed - [[b]]{0}[[/b]] is in combat" },
+                { "tpa_while_combat_you", "Teleport failed - you are in combat" },
+                { "tpa_while_raid", "Teleport failed - [[b]]{0}[[/b]] is raiding" },
+                { "tpa_while_raid_you", "Teleport failed - you are raiding" },
+                { "tpa_dead", "Teleport failed - a player is dead" },
+                { "tpa_cave", "Teleport failed - [[b]]{0}[[/b]] is in a cave" },
+                { "tpa_cave_you", "Teleport failed - you are in a cave" },
+                { "tpa_vehicle", "Teleport failed - [[b]]{0}[[/b]] is in a vehicle" },
+                { "tpa_vehicle_you", "Teleport failed - you are in a vehicle" },
+                { "tpa_no_sent_request", "You have no outgoing teleport request" },
+                { "tpa_canceled", "Canceled teleport request to [[b]]{0}[[/b]]" },
+                { "tpa_denied", "Denied [[b]]{0}[[/b]]'s teleport request" },
+                { "tpa_canceled_sender_moved", "Teleport canceled - [[b]]{0}[[/b]] moved" },
+                { "tpa_canceled_you_moved", "Teleport canceled - you moved" },
+                { "tpa_success", "Successfully teleported to [[b]]{0}[[/b]]" },
+                { "tpa_yourself", "You cannot send a teleport request to yourself" },
+                { "homes_cooldown", "Wait [[b]]{0}[[/b]] seconds before using home again" },
+                { "homes_delay_warn", "Teleporting to home [[b]]{0}[[/b]] in [[b]]{1}[[/b]] seconds..." },
+                { "homes_max_warn", "You have reached the maximum number of beds" },
+                { "homes_bed_destroyed", "Home unavailable: bed destroyed or unclaimed. Teleportation canceled" },
+                { "homes_while_driving", "You cannot teleport while driving" },
+                { "homes_no_home", "No matching home found" },
+                { "homes_success", "Teleported to home [[b]]{0}[[/b]]" },
+                { "homes_list", "Your homes [[b]][{0}/{1}][[/b]]: " },
+                { "homes_no_homes", "You do not have any claimed beds" },
+                { "homes_destroy_format", "Usage: /destroyhome [name]" },
+                { "homes_not_found", "No home found named [[b]]{0}[[/b]]" },
+                { "homes_destroy_success", "Removed home [[b]]{0}[[/b]]" },
+                { "homes_rename_format", "Usage: /renamehome [current name] [new name]" },
+                { "homes_already_exists", "You already have a home named [[b]]{0}[[/b]]" },
+                { "homes_rename_success", "Renamed home from [[b]]{0}[[/b]] to [[b]]{1}[[/b]]" },
+                { "homes_while_raid", "You cannot teleport while raiding" },
+                { "homes_while_combat", "You cannot teleport while in combat" },
+                { "homes_restore_success", "[[b]]{0}[[/b]] homes have been restored" },
+                { "homes_removed", "Your home [[b]]{0}[[/b]] was removed" },
+                { "homes_claimed", "Claimed new home: [[b]]{0}[[/b]]" },
+                { "homes_teleport_failed", "Failed to teleport to home [[b]]{0}[[/b]]" },
+                { "homes_destroyed", "Your home [[b]]{0}[[/b]] was destroyed" },
+                { "homes_canceled_you_moved", "Home teleport canceled because you moved" },
+                { "homes_underground", "Cannot teleport to home [[b]]{0}[[/b]] because it is underground" },
+                { "autosave_notify", "[[color=yellow]][[b]]Server save in progress...[[/b]][[/color]]" },
+                { "warp_help", "Usage: /warp &lt;name&gt; [player]" },
+                { "warps_help", "Usage: /warps [filter]" },
+                { "warp_set_help", "Usage: /setwarp &lt;name&gt;" },
+                { "warp_del_help", "Usage: /delwarp &lt;name&gt;" },
+                { "warp_del_all_help", "Usage: /delwarpall &lt;mapname&gt;" },
+                { "warp_success", "Teleported to warp [[b]]{0}[[/b]]" },
+                { "warp_delay", "Warping to [[b]]{0}[[/b]] in [[b]]{1}[[/b]] seconds..." },
+                { "warp_delay_nomove", "Warping to [[b]]{0}[[/b]] in [[b]]{1}[[/b]] seconds. Do not move." },
+                { "warp_canceled_moved", "Warp to [[b]]{0}[[/b]] canceled because you moved" },
+                { "warp_canceled_died", "Warp to [[b]]{0}[[/b]] canceled because you died" },
+                { "warp_not_found", "Warp [[b]]{0}[[/b]] was not found" },
+                { "warp_player_not_found", "Target player was not found" },
+                { "warp_while_driving", "You cannot warp while in a vehicle" },
+                { "warp_other_denied", "You are not allowed to warp other players" },
+                { "warp_console_need_player", "Console must specify a target player" },
+                { "warp_other_success", "Teleported [[b]]{0}[[/b]] to warp [[b]]{1}[[/b]]" },
+                { "warp_other_log", "Admin {0}({1}) teleported {2} to warp {3}" },
+                { "warp_set_success", "Warp has been set" },
+                { "warp_set_failed", "Failed to set warp" },
+                { "warp_del_success", "Warp has been removed" },
+                { "warp_del_not_found", "Warp was not found" },
+                { "warp_del_all_success", "Removed [[b]]{0}[[/b]] warp(s)" },
+                { "warps_empty", "No warps were found" },
+                { "warps_list_header", "Warps on this map: [[b]]{0}[[/b]]" },
+                { "warps_list", "{0}" },
+                { "warp_while_combat", "You cannot warp while in combat" },
+                { "warp_while_raid", "You cannot warp while raiding" },
                 { "invalid_character_name","invalid character name"},
-                { "command_not_found","Command not found."}
+                { "command_not_found","Command not found."},
+                { "command_reloadoptions_usage", "Usage: reloadoptions <module> [module ...] | all" },
+                { "command_reloadoptions_modules", "Available modules: {0}" },
+                { "command_reloadoptions_unknown", "Unknown module(s): {0}" },
+                { "command_reloadoptions_success", "Reloaded configuration: {0}" },
+                { "command_reloadoptions_success_all", "Reloaded all configuration files." },
+                { "command_reloadoptions_failed", "Failed to reload configuration. Check server log for details." }
         };
 
 
-        public static XMLFileAsset<UnturnedSettings> Settings;
-        public static XMLFileAsset<TranslationList> Translation;
+        public static XMLFileAsset<UnturnedSettings> Settings = null!;
+        public static XMLFileAsset<TpaSettings> TpaSettings = null!;
+        public static XMLFileAsset<HomeSettings> HomeSettings = null!;
+        public static XMLFileAsset<CommandAliasSettings> CommandAliasSettings = null!;
+        public static XMLFileAsset<WarpSettings> WarpSettings = null!;
+        public static XMLFileAsset<AutoSaveSettings> AutoSaveSettings = null!;
+        public static XMLFileAsset<TranslationList> Translation = null!;
+
+        private GameObject? teleportServicesHost;
+        private HomeRegistry? homeRegistry;
+        private WarpRegistry? warpRegistry;
 
         public IRocketImplementationEvents ImplementationEvents { get { return Events; } }
-        public static UnturnedEvents Events;
+        public static UnturnedEvents Events = null!;
 
-        public event RocketImplementationInitialized OnRocketImplementationInitialized;
+        public event RocketImplementationInitialized OnRocketImplementationInitialized = null!;
 
         public static string Translate(string translationKey, params object[] placeholder)
         {
             return Translation.Instance.Translate(translationKey, placeholder);
         }
 
-        [Obsolete("Refer to usage of built-in ICommandInputOutput for handling of custom console/terminal.")]
-        public static UnturnedConsole Console;
-
-
         public void initialize()
         {
-            if (Dedicator.isDedicated)
+            rocketGameObject = new GameObject("Rocket");
+            DontDestroyOnLoad(rocketGameObject);
+
+            CommandWindow.Log("Rocket Unturned v" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + " for Unturned v" + Provider.APP_VERSION);
+
+            HeadlessLogFilter.Install();
+            HeadlessLogFilter.TryApplyEarlyFromConfigFile();
+
+            IPluginAdvertising pluginAdvertising = PluginAdvertising.Get();
+            pluginAdvertising.PluginFrameworkName = "rocket";
+
+            R.OnRockedInitialized += () =>
             {
-                rocketGameObject = new GameObject("Rocket");
-                DontDestroyOnLoad(rocketGameObject);
+                Instance.Initialize();
+            };
 
-                if(System.Environment.OSVersion.Platform == PlatformID.Unix || System.Environment.OSVersion.Platform == PlatformID.MacOSX)
-#pragma warning disable CS0618
-                    Console = rocketGameObject.AddComponent<UnturnedConsole>();
-#pragma warning restore CS0618
-
-                CommandWindow.Log("Rocket Unturned v" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + " for Unturned v" + Provider.APP_VERSION);
-
-                IPluginAdvertising pluginAdvertising = PluginAdvertising.Get();
-                pluginAdvertising.PluginFrameworkName = "rocket";
-
-                R.OnRockedInitialized += () =>
-                {
-                    Instance.Initialize();
-                };
-
-                Provider.onServerHosted += () =>
-                {
-                    rocketGameObject.TryAddComponent<U>();
-                    rocketGameObject.TryAddComponent<R>();
-                };
-            }
+            Provider.onServerHosted += () =>
+            {
+                rocketGameObject.TryAddComponent<U>();
+                rocketGameObject.TryAddComponent<R>();
+            };
         }
 
         private void Awake()
@@ -184,9 +276,18 @@ namespace Rocket.Unturned
             try
             {
                 Settings = new XMLFileAsset<UnturnedSettings>(Environment.SettingsFile);
-                Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, Core.R.Settings.Instance.LanguageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
-                defaultTranslations.AddUnknownEntries(Translation);
+                TpaSettings = new XMLFileAsset<TpaSettings>(Environment.TpaSettingsFile);
+                HomeSettings = new XMLFileAsset<HomeSettings>(Environment.HomesSettingsFile);
+                CommandAliasSettings = new XMLFileAsset<CommandAliasSettings>(Environment.CommandAliasSettingsFile);
+                WarpSettings = new XMLFileAsset<WarpSettings>(Environment.WarpsSettingsFile);
+                AutoSaveSettings = new XMLFileAsset<AutoSaveSettings>(Environment.AutoSaveSettingsFile);
+                CommandAliasResolver.Load(CommandAliasSettings.Instance);
+                HeadlessLogFilter.ApplyFromSettings(Settings.Instance.SuppressHeadlessGraphicsLogs);
                 Events = gameObject.TryAddComponent<UnturnedEvents>();
+                ApplyTeleportServices();
+                string languageCode = LanguageCodeHelper.Normalize(Core.R.Settings.Instance.LanguageCode);
+                Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, languageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
+                defaultTranslations.AddUnknownEntries(Translation);
 
                 gameObject.TryAddComponent<UnturnedPermissions>();
                 gameObject.TryAddComponent<UnturnedChat>();
@@ -195,6 +296,8 @@ namespace Rocket.Unturned
                 gameObject.TryAddComponent<AutomaticSaveWatchdog>();
 
                 bindDelegates();
+                RCONServer.PreprocessCommand = CommandAliasResolver.ExpandCommandLine;
+                StartupBanner.Subscribe();
 
                 RocketPlugin.OnPluginLoading += (IRocketPlugin plugin, ref bool cancelLoading) =>
                 {
@@ -231,6 +334,7 @@ namespace Rocket.Unturned
                             }
                         }
                         pluginAdvertising.AddPlugins(pluginNames);
+                        CommandAliasCatalog.Sync(CommandAliasSettings);
                     };
 
                     SteamGameServer.SetKeyValue("unturned", Provider.APP_VERSION);
@@ -254,8 +358,19 @@ namespace Rocket.Unturned
         {
             CommandWindow.onCommandWindowInputted += (string text, ref bool shouldExecuteCommand) =>
             {
-                if (text.StartsWith("/")) text.Substring(1);
-                if (R.Commands != null) R.Commands.Execute(new ConsolePlayer(), text);
+                if (R.Commands != null)
+                {
+                    string expanded = CommandAliasResolver.ExpandCommandLine(text);
+                    bool executed = R.Commands.Execute(new ConsolePlayer(), expanded);
+                    if (!executed && !string.IsNullOrWhiteSpace(text.Trim()))
+                    {
+                        string commandName = expanded.TrimStart('/').Split(' ')[0];
+                        if (R.Commands.GetCommand(commandName) == null)
+                        {
+                            CommandWindow.Log(U.Translate("command_not_found"));
+                        }
+                    }
+                }
                 shouldExecuteCommand = false;
             };
 
@@ -300,7 +415,8 @@ namespace Rocket.Unturned
                     text.Substring(1);
                     if (R.Commands != null && UnturnedPermissions.CheckPermissions(player, text))
                     {
-                        R.Commands.Execute(UnturnedPlayer.FromSteamPlayer(player), text);
+                        string expanded = CommandAliasResolver.ExpandCommandLine(text);
+                        R.Commands.Execute(UnturnedPlayer.FromSteamPlayer(player), expanded);
                     }
                     shouldList = false;
                 }
@@ -316,8 +432,73 @@ namespace Rocket.Unturned
 
         public void Reload()
         {
-            Translation.Load();
-            Settings.Load();
+            ConfigOptionsReloader.ReloadAll();
+        }
+
+        internal void ApplyTeleportServices()
+        {
+            bool needSharedTracker = TpaSettings.Instance.Enabled || HomeSettings.Instance.Enabled || WarpSettings.Instance.Enabled;
+            bool needTpa = TpaSettings.Instance.Enabled;
+            bool needHomes = HomeSettings.Instance.Enabled;
+            bool needWarps = WarpSettings.Instance.Enabled;
+
+            if (needSharedTracker)
+            {
+                if (teleportServicesHost == null)
+                {
+                    teleportServicesHost = new GameObject("RocketTeleportServices");
+                    DontDestroyOnLoad(teleportServicesHost);
+                    teleportServicesHost.TryAddComponent<MovementCancelWatcher>();
+                    teleportServicesHost.TryAddComponent<CombatRaidTracker>();
+                }
+
+                if (needTpa)
+                {
+                    if (TpaService.Instance == null)
+                    {
+                        teleportServicesHost.TryAddComponent<TpaService>();
+                    }
+                    else if (MovementCancelWatcher.Instance != null)
+                    {
+                        MovementCancelWatcher.Instance.SetMoveMaxDistance(TpaSettings.Instance.MoveMaxDistance);
+                    }
+                }
+                else if (TpaService.Instance != null)
+                {
+                    Destroy(TpaService.Instance);
+                }
+            }
+            else if (teleportServicesHost != null)
+            {
+                Destroy(teleportServicesHost);
+                teleportServicesHost = null;
+            }
+
+            if (needHomes)
+            {
+                if (homeRegistry == null)
+                {
+                    homeRegistry = gameObject.TryAddComponent<HomeRegistry>();
+                }
+            }
+            else if (homeRegistry != null)
+            {
+                Destroy(homeRegistry);
+                homeRegistry = null;
+            }
+
+            if (needWarps)
+            {
+                if (warpRegistry == null)
+                {
+                    warpRegistry = gameObject.TryAddComponent<WarpRegistry>();
+                }
+            }
+            else if (warpRegistry != null)
+            {
+                Destroy(warpRegistry);
+                warpRegistry = null;
+            }
         }
 
         public void shutdown()
