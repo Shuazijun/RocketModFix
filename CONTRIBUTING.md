@@ -4,7 +4,7 @@
 
 ## 为何先开 Issue
 
-在动手改代码前，建议先在 [Issues](https://github.com/Shuazijun/RocketModFix/issues) 或 [Discord](https://discord.gg/z6VM7taWeG) 讨论：
+在动手改代码前，建议先在 [Issues](https://github.com/Shuazijun/RocketModFix/issues) 讨论：
 
 - **避免重复劳动**：他人可能已在处理相同问题。
 - **方案对齐**：讨论有助于找到更合适的实现方式。

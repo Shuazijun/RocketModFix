@@ -29,15 +29,12 @@ namespace Rocket.AutoInstaller
     [UsedImplicitly]
     public class Module : IModuleNexus
     {
-        private const string DiscordSupportURL = "https://discord.gg/z6VM7taWeG";
-
         public void initialize()
         {
             var assembly = typeof(Module).Assembly;
             var assemblyName = assembly.GetName();
 
             CommandWindow.Log($"Loading {assemblyName.Name} {assemblyName.Version}...");
-            CommandWindow.Log($"Discord Support: {DiscordSupportURL}");
 
             var modulesDirectory = Path.Combine(ReadWrite.PATH, "Modules");
             const string autoInstallerDll = "Rocket.AutoInstaller.dll";

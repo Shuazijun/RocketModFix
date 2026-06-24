@@ -5,8 +5,6 @@ GitHub: https://github.com/Shuazijun/RocketModFix
 
 最新版下载: https://github.com/Shuazijun/RocketModFix/releases
 
-Discord: https://discord.gg/z6VM7taWeG
-
 安装
 ----
 

@@ -5,8 +5,6 @@ GitHub: https://github.com/Shuazijun/RocketModFix
 
 Neueste Version: https://github.com/Shuazijun/RocketModFix/releases.
 
-Discord: https://discord.gg/z6VM7taWeG
-
 Installation
 ------------
 

@@ -43,7 +43,7 @@ namespace Rocket.Unturned.Player
                 Player.Thirst = 0;
                 Player.Heal(100);
                 Player.Stamina = 100;
-                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
+                UnturnedPlayerLifeSync.ServerRefillOxygen(Player.Player.life);
                 if (value)
                 {
                     Player.Events.OnUpdateHealth += e_OnPlayerUpdateHealth;
@@ -132,7 +132,7 @@ namespace Rocket.Unturned.Player
                 Player.Thirst = 0;
                 Player.Bleeding = false;
                 Player.Broken = false;
-                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
+                UnturnedPlayerLifeSync.ServerRefillOxygen(Player.Player.life);
             }
         }
 
@@ -174,13 +174,8 @@ namespace Rocket.Unturned.Player
         {
             if (oxygen < 100)
             {
-                Player.Player.life.simulatedModifyOxygen(GetOxygenRefillAmount());
+                UnturnedPlayerLifeSync.ServerRefillOxygen(Player.Player.life);
             }
-        }
-
-        private sbyte GetOxygenRefillAmount()
-        {
-            return (sbyte)Math.Max(0, 100 - Player.Player.life.oxygen);
         }
     }
 }

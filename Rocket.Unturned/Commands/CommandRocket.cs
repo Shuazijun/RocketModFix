@@ -53,7 +53,6 @@ namespace Rocket.Unturned.Commands
                 UnturnedChat.Say(caller,
                     $"RocketModFix v{Assembly.GetExecutingAssembly().GetName().Version} for Unturned v{Provider.APP_VERSION}");
                 UnturnedChat.Say(caller, "https://github.com/Shuazijun/RocketModFix/");
-                UnturnedChat.Say(caller, "https://discord.gg/z6VM7taWeG");
                 return;
             }
 
