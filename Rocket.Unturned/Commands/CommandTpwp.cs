@@ -48,15 +48,13 @@ namespace Rocket.Unturned.Commands
 
             if (!player.Player.quests.isMarkerPlaced)
             {
-                UnturnedChat.Say(player, U.Translate("command_tpwp_marker_not_set"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_tpwp_marker_not_set"));
             }
 
             Vector3 position = player.Player.quests.markerPosition;
             if (!RaycastFromSkyToPosition(ref position))
             {
-                UnturnedChat.Say(player, U.Translate("command_tpwp_failed_raycast"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_tpwp_failed_raycast"));
             }
             player.Player.teleportToLocationUnsafe(new Vector3(position.x, position.y, position.z), player.Rotation);
             Core.Logging.Logger.Log(U.Translate("command_tp_teleport_console", player.CharacterName, position.x + ", " + position.y + ", " + position.z));

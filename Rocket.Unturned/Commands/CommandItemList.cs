@@ -1,5 +1,6 @@
 using Rocket.API;
-using Rocket.Unturned.Chat;using Rocket.Unturned.Items;
+using Rocket.Unturned.Chat;
+using Rocket.Unturned.Items;
 using SDG.Unturned;
 using System;
 using System.Collections.Generic;
@@ -11,42 +12,23 @@ namespace Rocket.Unturned.Commands
 {
     public class CommandItemList : IRocketCommand
     {
-        public AllowedCaller AllowedCaller
-        {
-            get { return AllowedCaller.Both; }
-        }
+        public AllowedCaller AllowedCaller => AllowedCaller.Both;
 
-        public string Name
-        {
-            get { return "itemlist"; }
-        }
+        public string Name => "itemlist";
 
-        public string Help
-        {
-            get { return "Exports registered item names and IDs to Rocket/Outputs/ItemLists.csv"; }
-        }
+        public string Help => "Exports registered item names and IDs to Rocket/Outputs/ItemLists.csv";
 
-        public string Syntax
-        {
-            get { return ""; }
-        }
+        public string Syntax => "";
 
-        public List<string> Aliases
-        {
-            get { return new List<string>(); }
-        }
+        public List<string> Aliases => new List<string>();
 
-        public List<string> Permissions
-        {
-            get { return new List<string>() { "rocket.itemlist" }; }
-        }
+        public List<string> Permissions => new List<string>() { "rocket.itemlist" };
 
         public void Execute(IRocketPlayer caller, string[] command)
         {
             if (command.Length != 0)
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
 
             try
@@ -55,28 +37,34 @@ namespace Rocket.Unturned.Commands
                 Directory.CreateDirectory(outputDirectory);
 
                 string outputPath = Path.Combine(outputDirectory, "ItemLists.csv");
-                IReadOnlyList<ItemAsset> items = UnturnedItems.GetRegisteredItemAssets();
-                WriteItemListCsv(outputPath, items);
+                UnturnedItems.ItemAssetExportSnapshot snapshot = UnturnedItems.GetItemAssetExportSnapshot();
+                WriteItemListCsv(outputPath, snapshot.Items);
 
                 string relativePath = Path.Combine("Servers", Dedicator.serverID, "Rocket", "Outputs", "ItemLists.csv")
                     .Replace('\\', '/');
                 string message;
                 if (caller is ConsolePlayer)
                 {
-                    message = U.Translate("command_itemlist_success_console", items.Count, outputPath);
+                    message = U.Translate("command_itemlist_success_console", snapshot.Items.Count, outputPath, snapshot.SkippedCount);
                 }
                 else
                 {
-                    message = U.Translate("command_itemlist_success_player", items.Count, relativePath);
+                    message = U.Translate("command_itemlist_success_player", snapshot.Items.Count, relativePath, snapshot.SkippedCount);
                 }
 
                 UnturnedChat.Say(caller, message, Color.green);
-                Core.Logging.Logger.Log(U.Translate("command_itemlist_success_console", items.Count, outputPath));
+                if (caller is not ConsolePlayer)
+                {
+                    Core.Logging.Logger.Log(U.Translate("command_itemlist_success_console", snapshot.Items.Count, outputPath, snapshot.SkippedCount));
+                }
             }
             catch (Exception ex)
             {
-                string message = U.Translate("command_itemlist_failed", ex.Message);
-                UnturnedChat.Say(caller, message, Color.red);
+                if (caller is not ConsolePlayer)
+                {
+                    UnturnedChat.Say(caller, U.Translate("command_itemlist_failed", ex.Message), Color.red);
+                }
+
                 Core.Logging.Logger.LogException(ex, "itemlist export failed");
             }
         }
@@ -90,7 +78,7 @@ namespace Rocket.Unturned.Commands
             {
                 builder.Append(item.id);
                 builder.Append(',');
-                builder.AppendLine(EscapeCsvField(item.itemName ?? ""));
+                builder.AppendLine(EscapeCsvField(item.itemName));
             }
 
             File.WriteAllText(path, builder.ToString(), new UTF8Encoding(encoderShouldEmitUTF8Identifier: true));

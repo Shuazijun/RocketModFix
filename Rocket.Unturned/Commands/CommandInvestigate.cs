@@ -45,8 +45,7 @@ namespace Rocket.Unturned.Commands
         {
             if (command.Length!=1)
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
 
             SteamPlayer otherPlayer = PlayerTool.getSteamPlayer(command[0]);
@@ -56,8 +55,7 @@ namespace Rocket.Unturned.Commands
             }
             else
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_failed_find_player"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_failed_find_player"));
             }
         }
     }

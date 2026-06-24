@@ -9,6 +9,16 @@ namespace Rocket.Unturned.Commands
 {
     public static class UnturnedCommandExtensions
     {
+        public static void ThrowWrongUsage(this IRocketPlayer caller, IRocketCommand command, string? playerMessage = null)
+        {
+            if (!string.IsNullOrEmpty(playerMessage) && caller is not ConsolePlayer)
+            {
+                UnturnedChat.Say(caller, playerMessage);
+            }
+
+            throw new WrongUsageOfCommandException(caller, command);
+        }
+
         public static UnturnedPlayer? GetUnturnedPlayerParameter(this string[] array, int index)
         {
             return (array.Length <= index) ? null : UnturnedPlayer.FromName(array[index]);

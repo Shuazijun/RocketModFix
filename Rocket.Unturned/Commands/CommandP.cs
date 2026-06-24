@@ -136,14 +136,13 @@ namespace Rocket.Unturned.Commands
                         UnturnedChat.Say(caller, U.Translate("command_p_player_not_found", command[1], "group_not_found")); // the solution to the problem
                         return;
                     default:
-                        UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                        throw new WrongUsageOfCommandException(caller, this);
+                        caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
+                        return;
                 }
             }
             else
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
         }
 

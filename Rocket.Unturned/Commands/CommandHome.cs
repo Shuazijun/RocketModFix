@@ -37,8 +37,7 @@ namespace Rocket.Unturned.Commands
             byte rot;
             if (!BarricadeManager.tryGetBed(player.CSteamID, out pos, out rot))
             {
-                UnturnedChat.Say(caller, U.Translate("command_bed_no_bed_found_private"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_bed_no_bed_found_private"));
             }
 
             pos.y += 0.5f;

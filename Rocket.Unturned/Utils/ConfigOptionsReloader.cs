@@ -170,7 +170,6 @@ namespace Rocket.Unturned.Utils
                 AutomaticSaveWatchdog.Instance?.ApplySettings();
             }
 
-            Core.Logging.Logger.Log($"[ReloadOptions] Reloaded: {string.Join(", ", reloaded.ToArray())}");
             return reloaded;
         }
 

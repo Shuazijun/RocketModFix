@@ -50,8 +50,7 @@ namespace Rocket.Unturned.Commands
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length != 1 && command.Length != 3)
             {
-                UnturnedChat.Say(player, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
 
             float? x = null;

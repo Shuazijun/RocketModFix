@@ -59,13 +59,11 @@ namespace Rocket.Unturned.Commands
             var playerName = command.GetStringParameter(0);
             if (playerName == null)
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
             if (RocketUtilities.TryGetSteamIdFromText(playerName, out var steamId) == false)
             {
-                UnturnedChat.Say(caller, U.Translate("command_admin_player_invalid", playerName));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_admin_player_invalid", playerName));
             }
             var targetPlayer = UnturnedPlayer.FromCSteamID(steamId!.Value);
             var targetPlayerName = targetPlayer?.Player != null

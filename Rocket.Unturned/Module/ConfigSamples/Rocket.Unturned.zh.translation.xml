@@ -101,8 +101,8 @@
   <Translation Id="command_more_usage" Value="用法：/more &lt;数量&gt;" />
   <Translation Id="command_more_dequipped" Value="手中没有物品。" />
   <Translation Id="command_more_give" Value="给予 {0} 个物品：{1}。" />
-  <Translation Id="command_itemlist_success_console" Value="已导出 {0} 个物品到 {1}" />
-  <Translation Id="command_itemlist_success_player" Value="已导出 {0} 个物品，文件已生成在服务端：{1}" />
+  <Translation Id="command_itemlist_success_console" Value="已导出 {0} 个有效物品到 {1}（跳过 {2} 条无效项）" />
+  <Translation Id="command_itemlist_success_player" Value="已导出 {0} 个有效物品，文件已生成在服务端：{1}（跳过 {2} 条无效项）" />
   <Translation Id="command_itemlist_failed" Value="导出物品列表失败：{0}" />
   <Translation Id="invalid_character_name" Value="角色名无效" />
   <Translation Id="command_not_found" Value="找不到该命令。" />

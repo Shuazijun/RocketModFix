@@ -31,14 +31,42 @@ namespace Rocket.Unturned.Items
             return (ItemAsset)asset;
         }
 
-        public static IReadOnlyList<ItemAsset> GetRegisteredItemAssets()
+        public sealed class ItemAssetExportSnapshot
+        {
+            public IReadOnlyList<ItemAsset> Items;
+            public int SkippedCount;
+
+            public ItemAssetExportSnapshot(IReadOnlyList<ItemAsset> items, int skippedCount)
+            {
+                Items = items;
+                SkippedCount = skippedCount;
+            }
+        }
+
+        public static ItemAssetExportSnapshot GetItemAssetExportSnapshot()
         {
             List<ItemAsset> assets = new List<ItemAsset>();
             SDG.Unturned.Assets.find(assets);
-            return assets
-                .Where(i => i != null)
+
+            List<ItemAsset> valid = assets
+                .Where(IsExportableItem)
                 .OrderBy(i => i.id)
                 .ToList();
+
+            int skipped = assets.Count(asset => asset == null || !IsExportableItem(asset));
+            return new ItemAssetExportSnapshot(valid, skipped);
+        }
+
+        public static IReadOnlyList<ItemAsset> GetRegisteredItemAssets()
+        {
+            return GetItemAssetExportSnapshot().Items;
+        }
+
+        private static bool IsExportableItem(ItemAsset? asset)
+        {
+            return asset != null
+                && asset.id > 0
+                && !string.IsNullOrWhiteSpace(asset.itemName);
         }
 
         public static Item AssembleItem(ushort itemId, byte clipsize, Attachment? sight, Attachment? tactical, Attachment? grip, Attachment? barrel, Attachment? magazine, EFiremode firemode = EFiremode.SAFETY, byte amount = 1, byte durability = 100)

@@ -49,8 +49,7 @@ namespace Rocket.Unturned.Commands
             UnturnedPlayer player = (UnturnedPlayer)caller;
             if (command.Length != 1)
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
             ushort? id = command.GetUInt16Parameter(0);
             if (!id.HasValue)
@@ -59,8 +58,7 @@ namespace Rocket.Unturned.Commands
 
                 if (itemString == null)
                 {
-                    UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                    throw new WrongUsageOfCommandException(caller, this);
+                    caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
                 }
 
                 List<VehicleAsset> assets = new List<VehicleAsset>();
@@ -75,8 +73,7 @@ namespace Rocket.Unturned.Commands
                 }
                 if (!id.HasValue)
                 {
-                    UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                    throw new WrongUsageOfCommandException(caller, this);
+                    caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
                 }
             }
 
@@ -87,8 +84,7 @@ namespace Rocket.Unturned.Commands
             }
             if (a == null)
             {
-                UnturnedChat.Say(caller, U.Translate("command_generic_invalid_parameter"));
-                throw new WrongUsageOfCommandException(caller, this);
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
             string assetName = ((VehicleAsset)a).vehicleName;
 
