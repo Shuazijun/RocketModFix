@@ -2,6 +2,7 @@
 using Rocket.Unturned.Chat;
 using Rocket.Unturned.Player;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using UnityEngine;
 
@@ -9,11 +10,12 @@ namespace Rocket.Unturned.Commands
 {
     public static class UnturnedCommandExtensions
     {
+        [DoesNotReturn]
         public static void ThrowWrongUsage(this IRocketPlayer caller, IRocketCommand command, string? playerMessage = null)
         {
             if (!string.IsNullOrEmpty(playerMessage) && caller is not ConsolePlayer)
             {
-                UnturnedChat.Say(caller, playerMessage);
+                UnturnedChat.Say(caller, playerMessage!);
             }
 
             throw new WrongUsageOfCommandException(caller, command);

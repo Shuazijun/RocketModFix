@@ -76,8 +76,13 @@ namespace Rocket.Unturned.Commands
                     caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
                 }
             }
+            if (!id.HasValue)
+            {
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
+            }
 
-            Asset a = Assets.find(EAssetType.VEHICLE, id.Value);
+            ushort vehicleId = id.Value;
+            Asset? a = Assets.find(EAssetType.VEHICLE, vehicleId);
             if (a is VehicleRedirectorAsset ra)
             {
                 a = ra.TargetVehicle.Find();
@@ -90,21 +95,21 @@ namespace Rocket.Unturned.Commands
 
             if (U.Settings.Instance.EnableVehicleBlacklist && !player.HasPermission("vehicleblacklist.bypass"))
             {
-                if(player.HasPermission("vehicle." + id))
+                if(player.HasPermission("vehicle." + vehicleId))
                 {
                     UnturnedChat.Say(caller, U.Translate("command_v_blacklisted"));
                     return;
                 }
             }
 
-            if (VehicleTool.giveVehicle(player.Player, id.Value))
+            if (VehicleTool.giveVehicle(player.Player, vehicleId))
             {
-                Logger.Log(U.Translate("command_v_giving_console", player.CharacterName, id));
-                UnturnedChat.Say(caller, U.Translate("command_v_giving_private", assetName, id));
+                Logger.Log(U.Translate("command_v_giving_console", player.CharacterName, vehicleId));
+                UnturnedChat.Say(caller, U.Translate("command_v_giving_private", assetName, vehicleId));
             }
             else
             {
-                UnturnedChat.Say(caller, U.Translate("command_v_giving_failed_private", assetName, id));
+                UnturnedChat.Say(caller, U.Translate("command_v_giving_failed_private", assetName, vehicleId));
             }
         }
     }

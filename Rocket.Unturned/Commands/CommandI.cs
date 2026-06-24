@@ -70,9 +70,12 @@ namespace Rocket.Unturned.Commands
                 }
             }
 
-            Asset a = SDG.Unturned.Assets.find(EAssetType.ITEM,id);
-
-            if (command.Length == 2 && !byte.TryParse(command[1].ToString(), out amount) || a == null)
+            Asset? a = SDG.Unturned.Assets.find(EAssetType.ITEM,id);
+            if (a == null)
+            {
+                caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
+            }
+            if (command.Length == 2 && !byte.TryParse(command[1].ToString(), out amount))
             {
                 caller.ThrowWrongUsage(this, U.Translate("command_generic_invalid_parameter"));
             }
