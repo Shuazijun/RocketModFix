@@ -104,6 +104,9 @@
   <Translation Id="command_itemlist_success_console" Value="已导出 {0} 个有效物品到 {1}（跳过 {2} 条无效项）" />
   <Translation Id="command_itemlist_success_player" Value="已导出 {0} 个有效物品，文件已生成在服务端：{1}（跳过 {2} 条无效项）" />
   <Translation Id="command_itemlist_failed" Value="导出物品列表失败：{0}" />
+  <Translation Id="command_vehiclelist_success_console" Value="已导出 {0} 个有效载具到 {1}（跳过 {2} 条无效项）" />
+  <Translation Id="command_vehiclelist_success_player" Value="已导出 {0} 个有效载具，文件已生成在服务端：{1}（跳过 {2} 条无效项）" />
+  <Translation Id="command_vehiclelist_failed" Value="导出载具列表失败：{0}" />
   <Translation Id="invalid_character_name" Value="角色名无效" />
   <Translation Id="command_not_found" Value="找不到该命令。" />
   <!-- ===== 内嵌 TPA ===== -->
