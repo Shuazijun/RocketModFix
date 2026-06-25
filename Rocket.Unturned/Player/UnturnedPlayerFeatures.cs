@@ -43,7 +43,6 @@ namespace Rocket.Unturned.Player
                 Player.Thirst = 0;
                 Player.Heal(100);
                 Player.Stamina = 100;
-                UnturnedPlayerLifeSync.ServerRefillOxygen(Player.Player.life);
                 if (value)
                 {
                     Player.Events.OnUpdateHealth += e_OnPlayerUpdateHealth;
@@ -67,6 +66,10 @@ namespace Rocket.Unturned.Player
                     Player.Player.life.onOxygenUpdated -= e_OnPlayerUpdateOxygen;
                 }
                 godMode = value;
+                if (value)
+                {
+                    UnturnedPlayerLifeSync.ServerRefillOxygen(Player.Player.life);
+                }
             }
             get
             {
