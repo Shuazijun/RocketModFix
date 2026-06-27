@@ -43,6 +43,18 @@
   <Translation Id="command_z_giving_private" Value="正在附近生成 {0} 只僵尸" />
   <Translation Id="command_position_get" Value="当前坐标：{0}" />
   <Translation Id="command_i_giving_failed_private" Value="给予物品失败：{0} 个 {1}（{2}）" />
+  <Translation Id="command_rgive_player_not_found" Value="找不到玩家：{0}" />
+  <Translation Id="command_rgive_invalid_amount" Value="无效数量：{0}" />
+  <Translation Id="command_rgive_item_not_found" Value="找不到物品：{0}" />
+  <Translation Id="command_rgive_failed" Value="给予 {0} 物品失败：{1} 个 {2}（{3}）" />
+  <Translation Id="command_rgive_giving_console" Value="{0} 给予 {1} 物品 {2}:{3}" />
+  <Translation Id="command_rgive_giving_self" Value="给予你 {0} 个 {1}（{2}）" />
+  <Translation Id="command_rgive_giving_executor" Value="已给予 {0} {1} 个 {2}（{3}）" />
+  <Translation Id="command_rgive_giving_target" Value="你收到了 {0} 个 {1}（{2}）" />
+  <Translation Id="command_rgive_currency_console" Value="{0} 给予 {1} 货币 {2} x{3}" />
+  <Translation Id="command_rgive_currency_self" Value="已发放货币 {0} 个 {1}（{2}）" />
+  <Translation Id="command_rgive_currency_executor" Value="已向 {0} 发放货币 {1} 个 {2}（{3}）" />
+  <Translation Id="command_rgive_currency_target" Value="你收到了货币 {0} 个 {1}（{2}）" />
   <Translation Id="command_v_giving_console" Value="正在给予 {0} 载具 {1}" />
   <Translation Id="command_v_blacklisted" Value="该载具已被限制！" />
   <Translation Id="command_v_giving_private" Value="给予你一辆 {0}（{1}）" />
