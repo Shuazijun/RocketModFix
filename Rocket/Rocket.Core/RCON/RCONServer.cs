@@ -153,29 +153,43 @@ namespace Rocket.Core.RCON
 
                     {
 
-                        if (newclient.Client.Client.Connected && clients[i].Client.Client.Connected)
+                        if (!RCONConnection.TryGetRemoteIpAddress(newclient.Client, out IPAddress? newAddress))
 
-                            if (((IPEndPoint)newclient.Client.Client.RemoteEndPoint).Address.Equals(((IPEndPoint)clients[i].Client.Client.RemoteEndPoint).Address))
+                        {
+
+                            continue;
+
+                        }
+
+                        if (!RCONConnection.TryGetRemoteIpAddress(clients[i].Client, out IPAddress? existingAddress))
+
+                        {
+
+                            continue;
+
+                        }
+
+                        if (newAddress != null && newAddress.Equals(existingAddress))
+
+                        {
+
+                            currentLocalCount++;
+
+                            if (currentLocalCount > R.Settings.Instance.RCON.MaxLocalConnections)
 
                             {
 
-                                currentLocalCount++;
+                                maxClientsReached = true;
 
-                                if (currentLocalCount > R.Settings.Instance.RCON.MaxLocalConnections)
+                                newclient.Send("Error: Too many clients connected from your address, not accepting connection!\r\n");
 
-                                {
+                                Logger.LogWarning("Maximum Local RCON connections has been reached for address: " + newclient.Address + ".");
 
-                                    maxClientsReached = true;
-
-                                    newclient.Send("Error: Too many clients connected from your address, not accepting connection!\r\n");
-
-                                    Logger.LogWarning("Maximum Local RCON connections has been reached for address: " + newclient.Address + ".");
-
-                                    break;
-
-                                }
+                                break;
 
                             }
+
+                        }
 
                     }
 

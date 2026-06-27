@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Net;
+using System.Net.Sockets;
 using System.Linq;
 using System;
 
@@ -40,11 +41,67 @@ namespace Rocket.Core.RCON
 
         public void Close()
         {
-            if (Client.Client.Connected)
-                Client.Close();
+            try
+            {
+                Client?.Close();
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (SocketException)
+            {
+            }
         }
 
-        public string Address { get { return Client.Client.Connected ? Client.Client.RemoteEndPoint.ToString() : "?"; } }
+        public string Address => TryGetRemoteAddress(Client);
+
+        internal static string TryGetRemoteAddress(TcpClient? client)
+        {
+            if (client?.Client == null)
+            {
+                return "?";
+            }
+
+            try
+            {
+                EndPoint? endpoint = client.Client.RemoteEndPoint;
+                return endpoint?.ToString() ?? "?";
+            }
+            catch (SocketException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            return "?";
+        }
+
+        internal static bool TryGetRemoteIpAddress(TcpClient? client, out IPAddress? address)
+        {
+            address = null;
+            if (client?.Client == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                if (client.Client.RemoteEndPoint is IPEndPoint endpoint)
+                {
+                    address = endpoint.Address;
+                    return true;
+                }
+            }
+            catch (SocketException)
+            {
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+
+            return false;
+        }
     }
 
 }
