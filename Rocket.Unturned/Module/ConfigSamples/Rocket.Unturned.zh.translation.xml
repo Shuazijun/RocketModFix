@@ -55,6 +55,13 @@
   <Translation Id="command_rgive_currency_self" Value="已发放货币 {0} 个 {1}（{2}）" />
   <Translation Id="command_rgive_currency_executor" Value="已向 {0} 发放货币 {1} 个 {2}（{3}）" />
   <Translation Id="command_rgive_currency_target" Value="你收到了货币 {0} 个 {1}（{2}）" />
+  <Translation Id="command_rvehicle_player_not_found" Value="找不到玩家：{0}" />
+  <Translation Id="command_rvehicle_not_found" Value="找不到载具：{0}" />
+  <Translation Id="command_rvehicle_failed" Value="为 {0} 生成载具失败：{1}（{2}）" />
+  <Translation Id="command_rvehicle_spawn_console" Value="{0} 为 {1} 生成了载具 {2}" />
+  <Translation Id="command_rvehicle_spawn_self" Value="已在你前方生成载具 {0}（{1}）" />
+  <Translation Id="command_rvehicle_spawn_executor" Value="已为 {0} 生成载具 {1}（{2}）" />
+  <Translation Id="command_rvehicle_spawn_target" Value="你获得了载具 {0}（{1}）" />
   <Translation Id="command_v_giving_console" Value="正在给予 {0} 载具 {1}" />
   <Translation Id="command_v_blacklisted" Value="该载具已被限制！" />
   <Translation Id="command_v_giving_private" Value="给予你一辆 {0}（{1}）" />
