@@ -17,6 +17,10 @@ namespace Rocket.Unturned.Utils
 
         private static Harmony? harmony;
         private static bool installed;
+        private static int patchedMethodCount;
+
+        public static bool IsInstalled => installed;
+        public static int PatchedMethodCount => patchedMethodCount;
 
         public static void Install()
         {
@@ -26,21 +30,25 @@ namespace Rocket.Unturned.Utils
             }
 
             installed = true;
+            patchedMethodCount = 0;
             harmony = new Harmony(HarmonyId);
 
-            MethodInfo prefix = AccessTools.Method(typeof(CommandConsoleTimestamp), nameof(OutputToConsolePrefix));
-            PatchOutputToConsole(typeof(ConsoleInputOutputBase), prefix);
-            PatchOutputToConsole(typeof(ThreadedConsoleInputOutput), prefix);
-            PatchOutputToConsole(typeof(LegacyInputOutput), prefix);
+            MethodInfo prefix = AccessTools.Method(typeof(CommandConsoleTimestamp), nameof(OutputToConsolePrefix))!;
+            patchedMethodCount += PatchOutputToConsole(typeof(ConsoleInputOutputBase), prefix) ? 1 : 0;
+            patchedMethodCount += PatchOutputToConsole(typeof(ThreadedConsoleInputOutput), prefix) ? 1 : 0;
+            patchedMethodCount += PatchOutputToConsole(typeof(LegacyInputOutput), prefix) ? 1 : 0;
         }
 
-        private static void PatchOutputToConsole(Type type, MethodInfo prefix)
+        private static bool PatchOutputToConsole(Type type, MethodInfo prefix)
         {
             MethodInfo? target = AccessTools.Method(type, "outputToConsole", new[] { typeof(string), typeof(ConsoleColor) });
             if (target != null)
             {
                 harmony!.Patch(target, prefix: new HarmonyMethod(prefix));
+                return true;
             }
+
+            return false;
         }
 
         private static void OutputToConsolePrefix(ref string value)

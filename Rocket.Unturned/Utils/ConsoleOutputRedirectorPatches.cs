@@ -8,6 +8,7 @@ namespace Rocket.Unturned.Utils
     [HarmonyPatch(typeof(ConsoleOutputRedirector), nameof(ConsoleOutputRedirector.enable), new[] { typeof(bool) })]
     internal static class ConsoleOutputRedirectorEnablePatch
     {
+        [HarmonyPostfix]
         private static void Postfix(ConsoleOutputRedirector __instance)
         {
             UnityConsoleWarningFilter.Install();

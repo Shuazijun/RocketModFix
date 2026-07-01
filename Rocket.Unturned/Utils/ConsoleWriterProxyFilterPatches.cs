@@ -9,6 +9,7 @@ namespace Rocket.Unturned.Utils
     [HarmonyPatch(typeof(ConsoleWriterProxy), nameof(ConsoleWriterProxy.WriteLine), new[] { typeof(string) })]
     internal static class ConsoleWriterProxyWriteLinePatch
     {
+        [HarmonyPrefix]
         private static bool Prefix(string value)
         {
             if (!UnityConsoleWarningFilter.IsEnabled || value == null)
@@ -30,6 +31,7 @@ namespace Rocket.Unturned.Utils
     {
         private static readonly ThreadLocal<StringBuilder> LineBuffers = new ThreadLocal<StringBuilder>(() => new StringBuilder());
 
+        [HarmonyPrefix]
         private static bool Prefix(ConsoleWriterProxy __instance, char value)
         {
             if (!UnityConsoleWarningFilter.IsEnabled)

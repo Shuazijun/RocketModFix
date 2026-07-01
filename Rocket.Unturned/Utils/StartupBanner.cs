@@ -39,7 +39,13 @@ namespace Rocket.Unturned.Utils
             CommandWindow.Log($" 版本: {version}");
             CommandWindow.Log($" 构建时间 (UTC): {BuildMetadata.BuildTimeUtc}");
             CommandWindow.Log("------------------------------------------------------------");
-            CommandWindow.Log(" ReCoding By Shuazi & Email:shuazi@ixovo.com");
+            CommandWindow.Log(" 模块运行时诊断 (Harmony / 过滤器):");
+            foreach (string line in ModuleRuntimeDiagnostics.GetReportLines())
+            {
+                CommandWindow.Log("  " + line);
+            }
+            CommandWindow.Log("------------------------------------------------------------");
+            CommandWindow.Log(" ReCoding By Shuazi   Email:shuazi@ixovo.com");
             CommandWindow.Log("============================================================");
         }
     }

@@ -197,8 +197,14 @@ namespace Rocket.Unturned.Utils
 
         public static bool IsEnabled => !lastApplied.HasValue || lastApplied.Value;
 
+        internal static bool IsRedirectorStdoutFiltered()
+        {
+            return redirectorStdoutWriter != null;
+        }
+
         public static void Install()
         {
+            ModuleRuntimeDiagnostics.MarkFilterInstallCalled();
             InstallLogHandler();
             InstallHarmony();
             EnsureConsoleStreamsWrapped();
@@ -313,11 +319,85 @@ namespace Rocket.Unturned.Utils
                 return;
             }
 
-            harmonyInstalled = true;
-            harmony = new Harmony(HarmonyId);
-            harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteLinePatch)).Patch();
-            harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteCharPatch)).Patch();
-            harmony.CreateClassProcessor(typeof(ConsoleOutputRedirectorEnablePatch)).Patch();
+            try
+            {
+                harmony = new Harmony(HarmonyId);
+                PatchConsoleFilterMethod(
+                    "ConsoleWriterProxy.WriteLine",
+                    typeof(ConsoleWriterProxy),
+                    nameof(ConsoleWriterProxy.WriteLine),
+                    new[] { typeof(string) },
+                    typeof(ConsoleWriterProxyWriteLinePatch),
+                    "Prefix",
+                    postfix: false);
+                PatchConsoleFilterMethod(
+                    "ConsoleWriterProxy.Write",
+                    typeof(ConsoleWriterProxy),
+                    nameof(ConsoleWriterProxy.Write),
+                    new[] { typeof(char) },
+                    typeof(ConsoleWriterProxyWriteCharPatch),
+                    "Prefix",
+                    postfix: false);
+                PatchConsoleFilterMethod(
+                    "ConsoleOutputRedirector.enable",
+                    typeof(ConsoleOutputRedirector),
+                    nameof(ConsoleOutputRedirector.enable),
+                    new[] { typeof(bool) },
+                    typeof(ConsoleOutputRedirectorEnablePatch),
+                    "Postfix",
+                    postfix: true);
+                harmonyInstalled = true;
+            }
+            catch (Exception ex)
+            {
+                ModuleRuntimeDiagnostics.RecordError("InstallHarmony: " + ex.Message);
+            }
+        }
+
+        private static void PatchConsoleFilterMethod(
+            string label,
+            Type targetType,
+            string targetMethod,
+            Type[] argumentTypes,
+            Type patchType,
+            string patchMethodName,
+            bool postfix)
+        {
+            MethodInfo? method = AccessTools.Method(targetType, targetMethod, argumentTypes);
+            if (method == null)
+            {
+                ModuleRuntimeDiagnostics.RecordPatchResult(label, targetFound: false, patched: false);
+                ModuleRuntimeDiagnostics.RecordError(label + ": target method not found");
+                return;
+            }
+
+            MethodInfo? patch = AccessTools.Method(patchType, patchMethodName);
+            if (patch == null)
+            {
+                ModuleRuntimeDiagnostics.RecordPatchResult(label, targetFound: true, patched: false, "patch method missing");
+                ModuleRuntimeDiagnostics.RecordError(label + ": patch method not found");
+                return;
+            }
+
+            try
+            {
+                if (postfix)
+                {
+                    harmony!.Patch(method, postfix: new HarmonyMethod(patch));
+                }
+                else
+                {
+                    harmony!.Patch(method, prefix: new HarmonyMethod(patch));
+                }
+
+                bool applied = Harmony.GetPatchInfo(method) != null;
+                ModuleRuntimeDiagnostics.RecordPatchResult(label, targetFound: true, patched: applied);
+            }
+            catch (Exception ex)
+            {
+                ModuleRuntimeDiagnostics.RecordPatchResult(label, targetFound: true, patched: false, ex.Message);
+                ModuleRuntimeDiagnostics.RecordError(label + ": " + ex.Message);
+            }
         }
 
         private static void Apply(bool enabled)
