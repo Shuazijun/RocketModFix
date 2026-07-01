@@ -42,6 +42,7 @@ namespace Rocket.Unturned.Utils
 
         public static IEnumerable<string> GetReportLines()
         {
+            UnityConsoleWarningFilter.EnsureConsoleStreamsWrapped();
             UnityConsoleWarningFilter.TryWrapActiveConsoleOutProxy();
 
             Assembly executing = Assembly.GetExecutingAssembly();
@@ -54,6 +55,11 @@ namespace Rocket.Unturned.Utils
             yield return $"ModuleInitializer 已执行: {ModuleInitializerExecuted}";
             yield return $"过滤器 Install 已调用: {FilterInstallCalled} (UTC: {FilterInstallUtc:O})";
             yield return $"SuppressUnityConsoleWarnings: {UnityConsoleWarningFilter.IsEnabled}";
+            yield return UnturnedSettingsConfigHelper.DescribeFilterConfig(UnturnedSettingsConfigHelper.GetSettingsFilePath());
+            if (!UnityConsoleWarningFilter.IsEnabled)
+            {
+                yield return ">>> 过滤器已关闭：请在 Rocket.Unturned.config.xml 设置 <SuppressUnityConsoleWarnings>true</SuppressUnityConsoleWarnings>，并删除冲突的 <SuppressHeadlessGraphicsLogs>false</SuppressHeadlessGraphicsLogs>";
+            }
             yield return $"ILogHandler 已包装: {Debug.unityLogger.logHandler is UnityConsoleWarningFilterHandler}";
             yield return $"Console.Out 类型: {Console.Out?.GetType().FullName ?? "null"}";
             yield return $"Console.Error 类型: {Console.Error?.GetType().FullName ?? "null"}";

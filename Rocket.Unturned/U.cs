@@ -322,6 +322,7 @@ namespace Rocket.Unturned
                 WarpSettings = new XMLFileAsset<WarpSettings>(Environment.WarpsSettingsFile);
                 AutoSaveSettings = new XMLFileAsset<AutoSaveSettings>(Environment.AutoSaveSettingsFile);
                 CommandAliasResolver.Load(CommandAliasSettings.Instance);
+                UnturnedSettingsConfigHelper.NormalizeSuppressUnityConsoleWarnings(Settings.Instance);
                 UnityConsoleWarningFilter.ApplyFromSettings(Settings.Instance.SuppressUnityConsoleWarnings);
                 UnityConsoleWarningFilter.TryLogEnabledMessage();
                 Events = gameObject.TryAddComponent<UnturnedEvents>();

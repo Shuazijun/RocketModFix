@@ -448,14 +448,28 @@ namespace Rocket.Unturned.Utils
                 }
 
                 string xml = File.ReadAllText(path);
-                if (ContainsXmlBool(xml, "SuppressUnityConsoleWarnings", false)
-                    || ContainsXmlBool(xml, "SuppressHeadlessGraphicsLogs", false))
+                bool hasNewKey = xml.IndexOf("<SuppressUnityConsoleWarnings>", StringComparison.OrdinalIgnoreCase) >= 0;
+                if (hasNewKey)
+                {
+                    if (UnturnedSettingsConfigHelper.ContainsXmlBool(xml, "SuppressUnityConsoleWarnings", false))
+                    {
+                        return false;
+                    }
+
+                    if (UnturnedSettingsConfigHelper.ContainsXmlBool(xml, "SuppressUnityConsoleWarnings", true))
+                    {
+                        return true;
+                    }
+
+                    return true;
+                }
+
+                if (UnturnedSettingsConfigHelper.ContainsXmlBool(xml, "SuppressHeadlessGraphicsLogs", false))
                 {
                     return false;
                 }
 
-                if (ContainsXmlBool(xml, "SuppressUnityConsoleWarnings", true)
-                    || ContainsXmlBool(xml, "SuppressHeadlessGraphicsLogs", true))
+                if (UnturnedSettingsConfigHelper.ContainsXmlBool(xml, "SuppressHeadlessGraphicsLogs", true))
                 {
                     return true;
                 }
@@ -470,8 +484,7 @@ namespace Rocket.Unturned.Utils
 
         private static bool ContainsXmlBool(string xml, string elementName, bool value)
         {
-            string open = "<" + elementName + ">" + (value ? "true" : "false") + "</" + elementName + ">";
-            return xml.IndexOf(open, StringComparison.OrdinalIgnoreCase) >= 0;
+            return UnturnedSettingsConfigHelper.ContainsXmlBool(xml, elementName, value);
         }
     }
 }

@@ -34,9 +34,9 @@ namespace Rocket.Unturned.Serialisation
         public bool SuppressUnityConsoleWarnings = true;
 
         /// <summary>
-        /// Legacy config key. Maps to <see cref="SuppressUnityConsoleWarnings"/>.
+        /// Legacy config key alias. Not serialized — use SuppressUnityConsoleWarnings in XML.
         /// </summary>
-        [XmlElement("SuppressHeadlessGraphicsLogs")]
+        [XmlIgnore]
         public bool SuppressHeadlessGraphicsLogs
         {
             get => SuppressUnityConsoleWarnings;
