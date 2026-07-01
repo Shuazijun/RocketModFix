@@ -43,6 +43,7 @@ namespace Rocket.Unturned.Utils
         public static IEnumerable<string> GetReportLines()
         {
             UnityConsoleWarningFilter.EnsureConsoleStreamsWrapped();
+            UnityConsoleWarningFilter.TryWrapAllOutputRedirectors();
             UnityConsoleWarningFilter.TryWrapActiveConsoleOutProxy();
 
             Assembly executing = Assembly.GetExecutingAssembly();
@@ -63,7 +64,7 @@ namespace Rocket.Unturned.Utils
             yield return $"ILogHandler 已包装: {Debug.unityLogger.logHandler is UnityConsoleWarningFilterHandler}";
             yield return $"Console.Out 类型: {Console.Out?.GetType().FullName ?? "null"}";
             yield return $"Console.Error 类型: {Console.Error?.GetType().FullName ?? "null"}";
-            yield return $"stdout 已过滤包装: {Console.Out is FilteredConsoleWriter}";
+            yield return $"stdout 已过滤包装: {UnityConsoleWarningFilter.IsStdoutFilterWrapped()} (Console.Out={Console.Out?.GetType().Name})";
             yield return $"redirector stdout 已过滤: {UnityConsoleWarningFilter.IsRedirectorStdoutFiltered()}";
 
             foreach (KeyValuePair<string, string> patch in patchResults)

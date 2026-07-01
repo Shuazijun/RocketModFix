@@ -1,6 +1,7 @@
 using HarmonyLib;
 using SDG.Unturned;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -199,7 +200,12 @@ namespace Rocket.Unturned.Utils
 
         internal static bool IsRedirectorStdoutFiltered()
         {
-            return redirectorStdoutWriter != null;
+            return redirectorStdoutWriter != null && redirectorStdoutWriter.Enabled;
+        }
+
+        internal static bool IsStdoutFilterWrapped()
+        {
+            return ConsoleTextWriterHelper.ContainsFilteredWriter(Console.Out);
         }
 
         public static void Install()
@@ -208,16 +214,101 @@ namespace Rocket.Unturned.Utils
             InstallLogHandler();
             InstallHarmony();
             EnsureConsoleStreamsWrapped();
+            TryWrapAllOutputRedirectors();
             TryWrapActiveConsoleOutProxy();
+            EnsureLevelLoadedHook();
             Apply(true);
         }
 
         internal static void WrapRedirectorWriters(ConsoleOutputRedirector redirector)
         {
-            ConsoleWriterProxy? proxy = Traverse.Create(redirector).Field<ConsoleWriterProxy>("proxyWriter").Value;
+            Traverse redirectorTraverse = Traverse.Create(redirector);
+            StreamWriter? standardWriter = redirectorTraverse.Field<StreamWriter>("standardOutputWriter").Value;
+            if (standardWriter != null && standardWriter is not FilteringStreamWriter)
+            {
+                redirectorStdoutWriter = new FilteringStreamWriter(standardWriter.BaseStream, standardWriter.Encoding)
+                {
+                    Enabled = IsEnabled
+                };
+                redirectorTraverse.Field("standardOutputWriter").SetValue(redirectorStdoutWriter);
+                if (ConsoleTextWriterHelper.ReferencesWriter(Console.Out, standardWriter))
+                {
+                    Console.SetOut(redirectorStdoutWriter);
+                }
+            }
+            else if (standardWriter is FilteringStreamWriter existingStdout)
+            {
+                redirectorStdoutWriter = existingStdout;
+                existingStdout.Enabled = IsEnabled;
+            }
+
+            ConsoleWriterProxy? proxy = redirectorTraverse.Field<ConsoleWriterProxy>("proxyWriter").Value;
             if (proxy != null)
             {
                 WrapConsoleWriterProxy(proxy);
+            }
+        }
+
+        internal static void TryWrapAllOutputRedirectors()
+        {
+            try
+            {
+                if (Dedicator.commandWindow == null)
+                {
+                    return;
+                }
+
+                List<ICommandInputOutput>? handlers = Traverse.Create(Dedicator.commandWindow)
+                    .Field<List<ICommandInputOutput>>("ioHandlers")
+                    .Value;
+                if (handlers == null)
+                {
+                    return;
+                }
+
+                foreach (ICommandInputOutput handler in handlers)
+                {
+                    if (handler is not ConsoleInputOutputBase consoleHandler)
+                    {
+                        continue;
+                    }
+
+                    ConsoleOutputRedirector? redirector = Traverse.Create(consoleHandler)
+                        .Field<ConsoleOutputRedirector>("outputRedirector")
+                        .Value;
+                    if (redirector != null)
+                    {
+                        WrapRedirectorWriters(redirector);
+                    }
+                }
+            }
+            catch
+            {
+            }
+        }
+
+        private static void EnsureLevelLoadedHook()
+        {
+            if (levelLoadedHooked)
+            {
+                return;
+            }
+
+            levelLoadedHooked = true;
+            Level.onLevelLoaded += OnLevelLoadedRefresh;
+        }
+
+        private static bool levelLoadedHooked;
+
+        private static void OnLevelLoadedRefresh(int level)
+        {
+            InstallLogHandler();
+            EnsureConsoleStreamsWrapped();
+            TryWrapAllOutputRedirectors();
+            TryWrapActiveConsoleOutProxy();
+            if (lastApplied.HasValue)
+            {
+                Apply(lastApplied.Value);
             }
         }
 
@@ -284,10 +375,14 @@ namespace Rocket.Unturned.Utils
 
         private static void WrapStream(ref FilteredConsoleWriter? holder, TextWriter current, Action<TextWriter> setter)
         {
-            if (current is FilteredConsoleWriter existing)
+            if (ConsoleTextWriterHelper.ContainsFilteredWriter(current))
             {
-                holder ??= existing;
-                return;
+                TextWriter unwrapped = ConsoleTextWriterHelper.Unwrap(current);
+                if (unwrapped is FilteredConsoleWriter existing)
+                {
+                    holder ??= existing;
+                    return;
+                }
             }
 
             holder = new FilteredConsoleWriter(current);
@@ -344,6 +439,14 @@ namespace Rocket.Unturned.Utils
                     nameof(ConsoleOutputRedirector.enable),
                     new[] { typeof(bool) },
                     typeof(ConsoleOutputRedirectorEnablePatch),
+                    "Postfix",
+                    postfix: true);
+                PatchConsoleFilterMethod(
+                    "ConsoleInputOutputBase.initialize",
+                    typeof(ConsoleInputOutputBase),
+                    nameof(ConsoleInputOutputBase.initialize),
+                    new[] { typeof(CommandWindow) },
+                    typeof(ConsoleInputOutputBaseInitializePatch),
                     "Postfix",
                     postfix: true);
                 harmonyInstalled = true;
@@ -404,6 +507,7 @@ namespace Rocket.Unturned.Utils
         {
             InstallLogHandler();
             EnsureConsoleStreamsWrapped();
+            TryWrapAllOutputRedirectors();
             TryWrapActiveConsoleOutProxy();
 
             bool stateChanged = !lastApplied.HasValue || lastApplied.Value != enabled;
