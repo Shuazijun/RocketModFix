@@ -6,7 +6,17 @@ namespace Rocket.Core.Utils
 {
     internal static class ConfigSampleHelper
     {
-        private const string SampleRelativePath = "Modules/Rocket.Unturned/ConfigSamples";
+        internal const string SampleRelativePath = "Modules/Rocket.Unturned/ConfigSamples";
+
+        public static string? GetSampleFilePath(string fileName)
+        {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return null;
+            }
+
+            return Path.Combine(ReadWrite.PATH, SampleRelativePath, Path.GetFileName(fileName));
+        }
 
         public static bool TryCopySample(string destinationFile)
         {
@@ -23,7 +33,7 @@ namespace Rocket.Core.Utils
                     return false;
                 }
 
-                string samplePath = Path.Combine(ReadWrite.PATH, SampleRelativePath, fileName);
+                string samplePath = GetSampleFilePath(fileName) ?? string.Empty;
                 if (!File.Exists(samplePath))
                 {
                     return false;

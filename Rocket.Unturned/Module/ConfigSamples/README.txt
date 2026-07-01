@@ -30,6 +30,26 @@
 
 
 
+   若游戏中仍显示英文，请检查：
+
+   a) Rocket.config.xml 中 <LanguageCode>zh</LanguageCode>（不是 en）
+
+   b) Servers/<实例>/Rocket/ 下存在：
+
+      - Rocket.zh.translation.xml
+
+      - Rocket.Unturned.zh.translation.xml
+
+   c) 若上述文件是早期自动生成的英文版，可：
+
+      - 从本目录重新复制两个 zh.translation.xml 覆盖，或
+
+      - 升级到含翻译合并的版本后重启（会自动用样本补全仍为英文的条目）
+
+   d) 修改语言或翻译后执行：/reloadoptions translation
+
+
+
 3. 配置示例（含中文注释，仅供参考，不会被自动覆盖）：
 
    - Rocket.config.example.xml

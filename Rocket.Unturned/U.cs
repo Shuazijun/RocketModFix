@@ -262,6 +262,18 @@ namespace Rocket.Unturned
             return Translation.Instance.Translate(translationKey, placeholder);
         }
 
+        public static void ReloadTranslations()
+        {
+            string languageCode = LanguageCodeHelper.Normalize(Core.R.Settings.Instance.LanguageCode);
+            Translation.Load();
+            TranslationSampleMerger.TryMergeChineseFromSample(
+                Translation,
+                defaultTranslations,
+                languageCode,
+                String.Format(Environment.TranslationFile, languageCode));
+            defaultTranslations.AddUnknownEntries(Translation);
+        }
+
         public void initialize()
         {
             rocketGameObject = new GameObject("Rocket");
@@ -310,6 +322,7 @@ namespace Rocket.Unturned
                 ApplyTeleportServices();
                 string languageCode = LanguageCodeHelper.Normalize(Core.R.Settings.Instance.LanguageCode);
                 Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, languageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
+                TranslationSampleMerger.TryMergeChineseFromSample(Translation, defaultTranslations, languageCode, String.Format(Environment.TranslationFile, languageCode));
                 defaultTranslations.AddUnknownEntries(Translation);
 
                 gameObject.TryAddComponent<UnturnedPermissions>();

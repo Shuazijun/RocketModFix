@@ -76,6 +76,7 @@ namespace Rocket.Core
                 Settings = new XMLFileAsset<RocketSettings>(Environment.SettingsFile);
                 string languageCode = LanguageCodeHelper.Normalize(Settings.Instance.LanguageCode);
                 Translation = new XMLFileAsset<TranslationList>(String.Format(Environment.TranslationFile, languageCode), new Type[] { typeof(TranslationList), typeof(TranslationListEntry) }, defaultTranslations);
+                TranslationSampleMerger.TryMergeChineseFromSample(Translation, defaultTranslations, languageCode, String.Format(Environment.TranslationFile, languageCode));
                 defaultTranslations.AddUnknownEntries(Translation);
                 Permissions = gameObject.TryAddComponent<RocketPermissionsManager>();
                 Plugins = gameObject.TryAddComponent<RocketPluginManager>();
@@ -98,6 +99,18 @@ namespace Rocket.Core
         public static string Translate(string translationKey, params object[] placeholder)
         {
             return Translation.Instance.Translate(translationKey, placeholder);
+        }
+
+        public static void ReloadTranslations()
+        {
+            string languageCode = LanguageCodeHelper.Normalize(Settings.Instance.LanguageCode);
+            Translation.Load();
+            TranslationSampleMerger.TryMergeChineseFromSample(
+                Translation,
+                defaultTranslations,
+                languageCode,
+                String.Format(Environment.TranslationFile, languageCode));
+            defaultTranslations.AddUnknownEntries(Translation);
         }
 
         public static void Reload()

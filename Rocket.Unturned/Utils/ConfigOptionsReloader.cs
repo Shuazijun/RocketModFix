@@ -1,4 +1,5 @@
 using Rocket.Core;
+using Rocket.Core.Utils;
 using Rocket.Unturned.Commands;
 using System;
 using System.Collections.Generic;
@@ -102,7 +103,7 @@ namespace Rocket.Unturned.Utils
             if (moduleSet.Contains("rocket"))
             {
                 R.Settings.Load();
-                R.Translation.Load();
+                R.ReloadTranslations();
                 ApplyMaxFrames();
                 reloaded.Add("rocket");
             }
@@ -115,7 +116,8 @@ namespace Rocket.Unturned.Utils
 
             if (moduleSet.Contains("translation"))
             {
-                U.Translation.Load();
+                R.ReloadTranslations();
+                U.ReloadTranslations();
                 reloaded.Add("translation");
             }
 
