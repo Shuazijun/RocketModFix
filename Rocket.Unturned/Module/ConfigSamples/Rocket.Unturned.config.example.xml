@@ -23,8 +23,8 @@
   <!-- 是否按 Permissions.config.xml 中权限组 Priority 显示玩家聊天颜色 -->
   <EnableUnturnedPlayerColorFromPriorityGroup>false</EnableUnturnedPlayerColorFromPriorityGroup>
   <!--
-    控制台 Unity 警告过滤：过滤 Unity 输出的非 ERROR 级别日志（Log / Warning 等）
-    true：仅保留 Error / Assert / Exception；false：输出完整 Unity 日志
+    控制台 Unity 日志过滤：过滤 Unity 全部控制台输出（Log / Warning / Error / Assert / Exception）
+    true：仅保留 CommandWindow 游戏日志与 Rocket.log；false：输出完整 Unity 日志
     不影响 CommandWindow 游戏日志、Rocket.log 与插件异常
     旧配置项 SuppressHeadlessGraphicsLogs 仍兼容
   -->

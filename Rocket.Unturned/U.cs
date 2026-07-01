@@ -33,6 +33,11 @@ namespace Rocket.Unturned
 {
     public class U : MonoBehaviour, IRocketImplementation, IModuleNexus
     {
+        static U()
+        {
+            UnityConsoleWarningFilter.Install();
+        }
+
         private static GameObject rocketGameObject = null!;
         public static U Instance = null!;
 
@@ -318,6 +323,7 @@ namespace Rocket.Unturned
                 AutoSaveSettings = new XMLFileAsset<AutoSaveSettings>(Environment.AutoSaveSettingsFile);
                 CommandAliasResolver.Load(CommandAliasSettings.Instance);
                 UnityConsoleWarningFilter.ApplyFromSettings(Settings.Instance.SuppressUnityConsoleWarnings);
+                UnityConsoleWarningFilter.TryLogEnabledMessage();
                 Events = gameObject.TryAddComponent<UnturnedEvents>();
                 ApplyTeleportServices();
                 string languageCode = LanguageCodeHelper.Normalize(Core.R.Settings.Instance.LanguageCode);

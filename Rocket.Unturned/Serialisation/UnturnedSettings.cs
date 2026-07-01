@@ -27,8 +27,8 @@ namespace Rocket.Unturned.Serialisation
         public bool EnableUnturnedPlayerColorFromPriorityGroup;
 
         /// <summary>
-        /// When true, suppresses Unity Log/Warning output in the dedicated server console.
-        /// Error, Assert, and Exception levels are always kept.
+        /// When true, suppresses all Unity console output (Log / Warning / Error / Assert / Exception).
+        /// CommandWindow and Rocket.log are unaffected.
         /// </summary>
         [XmlElement("SuppressUnityConsoleWarnings")]
         public bool SuppressUnityConsoleWarnings = true;

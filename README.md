@@ -63,7 +63,7 @@
 
 ### 4.25.x 新增
 
-- **Unity 控制台警告过滤**（`SuppressUnityConsoleWarnings`，默认 `true`）：启用后仅保留 Unity `Error` / `Assert` / `Exception`，过滤 `Log` 与 `Warning`（含 BoxCollider、Shader 等噪音）。旧键 `SuppressHeadlessGraphicsLogs` 仍兼容。
+- **Unity 控制台日志过滤**（`SuppressUnityConsoleWarnings`，默认 `true`）：启用后过滤 Unity 全部控制台输出（含 Log / Warning / Error / Assert / Exception 及 BoxCollider、Shader 等）；仅保留 `CommandWindow` 与 `Rocket.log`。旧键 `SuppressHeadlessGraphicsLogs` 仍兼容。
 - **控制台时间戳**：所有 `CommandWindow` 控制台输出（含玩家聊天、加入/离开、指令日志等）统一前缀 `[yyyy-MM-dd HH:mm:ss]`；`Rocket.log` 格式不变。
 - `vehiclelist`、`rgive`、`rvehicle` 等管理命令（见 Releases 4.25.4–4.25.8）
 

@@ -30,17 +30,15 @@ namespace Rocket.Unturned.Utils
 
         public static bool ShouldSuppressLogHandlerMessage(LogType logType, string message)
         {
-            if (logType == LogType.Error || logType == LogType.Assert || logType == LogType.Exception)
-            {
-                return ShouldSuppressMessage(message);
-            }
-
             return true;
         }
 
         private static bool ShouldSuppressMessage(string message)
         {
-            if (message.StartsWith("WARNING:", StringComparison.OrdinalIgnoreCase))
+            if (message.StartsWith("WARNING:", StringComparison.OrdinalIgnoreCase)
+                || message.StartsWith("ERROR:", StringComparison.OrdinalIgnoreCase)
+                || message.StartsWith("ASSERT:", StringComparison.OrdinalIgnoreCase)
+                || message.IndexOf("Assertion failed", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 return true;
             }
@@ -60,8 +58,15 @@ namespace Rocket.Unturned.Utils
                 return true;
             }
 
+            if (message.IndexOf("Scene hierarchy path", StringComparison.OrdinalIgnoreCase) >= 0
+                && message.IndexOf("MeshCollider", StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                return true;
+            }
+
             if (message.IndexOf("The animation state", StringComparison.OrdinalIgnoreCase) >= 0
-                && message.IndexOf("could not be played", StringComparison.OrdinalIgnoreCase) >= 0)
+                && (message.IndexOf("could not be played", StringComparison.OrdinalIgnoreCase) >= 0
+                    || message.IndexOf("Please attach an animation clip", StringComparison.OrdinalIgnoreCase) >= 0))
             {
                 return true;
             }
@@ -130,6 +135,11 @@ namespace Rocket.Unturned.Utils
 
         public void LogException(Exception exception, UnityEngine.Object context)
         {
+            if (Enabled)
+            {
+                return;
+            }
+
             defaultHandler.LogException(exception, context);
         }
 
@@ -159,6 +169,7 @@ namespace Rocket.Unturned.Utils
     internal sealed class FilteredConsoleWriter : TextWriter
     {
         private readonly TextWriter inner;
+        private readonly StringBuilder lineBuffer = new StringBuilder();
 
         public FilteredConsoleWriter(TextWriter inner)
         {
@@ -179,37 +190,65 @@ namespace Rocket.Unturned.Utils
 
         public override void Write(char value)
         {
-            inner.Write(value);
+            if (value == '\n')
+            {
+                FlushBufferedLine();
+                return;
+            }
+
+            if (value != '\r')
+            {
+                lineBuffer.Append(value);
+            }
         }
 
         public override void Write(string? value)
         {
-            if (value != null && Enabled && UnityConsoleNoiseMatcher.ShouldSuppressStdoutLine(value))
+            if (string.IsNullOrEmpty(value))
             {
                 return;
             }
 
-            inner.Write(value);
+            foreach (char character in value)
+            {
+                Write(character);
+            }
         }
 
         public override void WriteLine(string? value)
         {
-            if (value != null && Enabled && UnityConsoleNoiseMatcher.ShouldSuppressStdoutLine(value))
+            if (!string.IsNullOrEmpty(value))
             {
-                return;
+                Write(value);
             }
 
-            inner.WriteLine(value);
+            FlushBufferedLine();
         }
 
         public override void WriteLine()
         {
-            inner.WriteLine();
+            FlushBufferedLine();
         }
 
         public override void Flush()
         {
+            FlushBufferedLine();
             inner.Flush();
+        }
+
+        private void FlushBufferedLine()
+        {
+            if (lineBuffer.Length == 0)
+            {
+                return;
+            }
+
+            string line = lineBuffer.ToString();
+            lineBuffer.Clear();
+            if (!Enabled || !UnityConsoleNoiseMatcher.ShouldSuppressStdoutLine(line))
+            {
+                inner.WriteLine(line);
+            }
         }
     }
 
@@ -217,16 +256,20 @@ namespace Rocket.Unturned.Utils
     {
         public const string HarmonyId = "com.rocketmodfix.unturned.unity-console-warning-filter";
         private static UnityConsoleWarningFilterHandler? handler;
-        private static FilteredConsoleWriter? consoleWriter;
+        private static FilteredConsoleWriter? stdoutWriter;
+        private static FilteredConsoleWriter? stderrWriter;
         private static bool? lastApplied;
         private static Harmony? harmony;
         private static bool harmonyInstalled;
+        private static bool loggedEnabledMessage;
+
+        public static bool IsEnabled => !lastApplied.HasValue || lastApplied.Value;
 
         public static void Install()
         {
             InstallLogHandler();
             InstallHarmony();
-            EnsureConsoleOutWrapped();
+            EnsureConsoleStreamsWrapped();
             Apply(true);
         }
 
@@ -247,36 +290,39 @@ namespace Rocket.Unturned.Utils
             Apply(enabled);
         }
 
-        internal static void EnsureConsoleOutWrapped()
+        internal static void EnsureConsoleStreamsWrapped()
         {
-            TextWriter current = Console.Out;
+            WrapStream(ref stdoutWriter, Console.Out, Console.SetOut);
+            WrapStream(ref stderrWriter, Console.Error, Console.SetError);
+        }
+
+        private static void WrapStream(ref FilteredConsoleWriter? holder, TextWriter current, Action<TextWriter> setter)
+        {
             if (current is FilteredConsoleWriter existing)
             {
-                if (consoleWriter == null)
-                {
-                    consoleWriter = existing;
-                }
-
+                holder ??= existing;
                 return;
             }
 
-            consoleWriter = new FilteredConsoleWriter(current);
+            holder = new FilteredConsoleWriter(current);
             if (lastApplied.HasValue)
             {
-                consoleWriter.Enabled = lastApplied.Value;
+                holder.Enabled = lastApplied.Value;
             }
 
-            Console.SetOut(consoleWriter);
+            setter(holder);
         }
 
         private static void InstallLogHandler()
         {
-            if (handler != null)
+            ILogHandler current = Debug.unityLogger.logHandler;
+            if (current is UnityConsoleWarningFilterHandler existing)
             {
+                handler = existing;
                 return;
             }
 
-            handler = new UnityConsoleWarningFilterHandler(Debug.unityLogger.logHandler);
+            handler = new UnityConsoleWarningFilterHandler(current);
             Debug.unityLogger.logHandler = handler;
         }
 
@@ -289,6 +335,9 @@ namespace Rocket.Unturned.Utils
 
             harmonyInstalled = true;
             harmony = new Harmony(HarmonyId);
+            harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteLinePatch)).Patch();
+            harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteCharPatch)).Patch();
+
             MethodInfo? postfix = AccessTools.Method(typeof(UnityConsoleWarningFilter), nameof(ConsoleOutputRedirectorPostfix));
             MethodInfo? target = AccessTools.Method(typeof(ConsoleOutputRedirector), nameof(ConsoleOutputRedirector.enable));
             if (postfix != null && target != null)
@@ -299,28 +348,38 @@ namespace Rocket.Unturned.Utils
 
         private static void ConsoleOutputRedirectorPostfix()
         {
-            EnsureConsoleOutWrapped();
+            EnsureConsoleStreamsWrapped();
         }
 
         private static void Apply(bool enabled)
         {
             InstallLogHandler();
-            EnsureConsoleOutWrapped();
+            EnsureConsoleStreamsWrapped();
 
-            if (lastApplied.HasValue && lastApplied.Value == enabled)
-            {
-                handler!.Enabled = enabled;
-                consoleWriter!.Enabled = enabled;
-                return;
-            }
-
+            bool stateChanged = !lastApplied.HasValue || lastApplied.Value != enabled;
             lastApplied = enabled;
             handler!.Enabled = enabled;
-            consoleWriter!.Enabled = enabled;
+            stdoutWriter!.Enabled = enabled;
+            stderrWriter!.Enabled = enabled;
 
-            if (enabled)
+            if (enabled && stateChanged && !loggedEnabledMessage)
             {
-                CommandWindow.Log("Unity console warning filter enabled (Rocket.Unturned.config.xml).");
+                TryLogEnabledMessage();
+            }
+        }
+
+        internal static void TryLogEnabledMessage()
+        {
+            try
+            {
+                if (Dedicator.commandWindow != null)
+                {
+                    CommandWindow.Log("Unity console warning filter enabled (Rocket.Unturned.config.xml).");
+                    loggedEnabledMessage = true;
+                }
+            }
+            catch
+            {
             }
         }
 
