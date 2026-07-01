@@ -17,94 +17,25 @@ namespace Rocket.Unturned.Utils
                 return false;
             }
 
-            if (message.Length >= 21
-                && message[0] == '['
-                && char.IsDigit(message[1])
-                && message.IndexOf("] ", 10, StringComparison.Ordinal) > 0)
+            if (HasCommandWindowTimestamp(message))
             {
                 return false;
             }
 
-            return ShouldSuppressMessage(message);
+            return true;
+        }
+
+        public static bool HasCommandWindowTimestamp(string message)
+        {
+            return message.Length >= 21
+                && message[0] == '['
+                && char.IsDigit(message[1])
+                && message.IndexOf("] ", 10, StringComparison.Ordinal) > 0;
         }
 
         public static bool ShouldSuppressLogHandlerMessage(LogType logType, string message)
         {
             return true;
-        }
-
-        private static bool ShouldSuppressMessage(string message)
-        {
-            if (message.StartsWith("WARNING:", StringComparison.OrdinalIgnoreCase)
-                || message.StartsWith("ERROR:", StringComparison.OrdinalIgnoreCase)
-                || message.StartsWith("ASSERT:", StringComparison.OrdinalIgnoreCase)
-                || message.IndexOf("Assertion failed", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("BoxCollider does not support negative", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("effective box size has been forced positive", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("use the convex MeshCollider", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("Scene hierarchy path", StringComparison.OrdinalIgnoreCase) >= 0
-                && message.IndexOf("MeshCollider", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("The animation state", StringComparison.OrdinalIgnoreCase) >= 0
-                && (message.IndexOf("could not be played", StringComparison.OrdinalIgnoreCase) >= 0
-                    || message.IndexOf("Please attach an animation clip", StringComparison.OrdinalIgnoreCase) >= 0))
-            {
-                return true;
-            }
-
-            if (message.IndexOf("Shader", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                if (message.IndexOf("fallback shader", StringComparison.OrdinalIgnoreCase) >= 0
-                    || message.IndexOf("not supported on this GPU", StringComparison.OrdinalIgnoreCase) >= 0
-                    || message.IndexOf("All subshaders removed", StringComparison.OrdinalIgnoreCase) >= 0
-                    || message.StartsWith("ERROR: Shader", StringComparison.OrdinalIgnoreCase)
-                    || message.StartsWith("WARNING: Shader", StringComparison.OrdinalIgnoreCase)
-                    || message.StartsWith("Shader '", StringComparison.OrdinalIgnoreCase))
-                {
-                    return true;
-                }
-            }
-
-            if (message.StartsWith("Unloading ", StringComparison.Ordinal)
-                && (message.IndexOf("Unused Serialized files", StringComparison.OrdinalIgnoreCase) >= 0
-                    || message.IndexOf("unused Assets to reduce memory usage", StringComparison.OrdinalIgnoreCase) >= 0))
-            {
-                return true;
-            }
-
-            if (message.StartsWith("Total:", StringComparison.Ordinal)
-                && message.IndexOf("FindLiveObjects:", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            if (message.IndexOf("Forcing GfxDevice: Null", StringComparison.OrdinalIgnoreCase) >= 0
-                || message.IndexOf("NullGfxDevice", StringComparison.OrdinalIgnoreCase) >= 0
-                || message.IndexOf("graphics device is Null", StringComparison.OrdinalIgnoreCase) >= 0)
-            {
-                return true;
-            }
-
-            return false;
         }
     }
 
@@ -262,6 +193,7 @@ namespace Rocket.Unturned.Utils
         private static Harmony? harmony;
         private static bool harmonyInstalled;
         private static bool loggedEnabledMessage;
+        private static FilteringStreamWriter? redirectorStdoutWriter;
 
         public static bool IsEnabled => !lastApplied.HasValue || lastApplied.Value;
 
@@ -270,7 +202,55 @@ namespace Rocket.Unturned.Utils
             InstallLogHandler();
             InstallHarmony();
             EnsureConsoleStreamsWrapped();
+            TryWrapActiveConsoleOutProxy();
             Apply(true);
+        }
+
+        internal static void WrapRedirectorWriters(ConsoleOutputRedirector redirector)
+        {
+            ConsoleWriterProxy? proxy = Traverse.Create(redirector).Field<ConsoleWriterProxy>("proxyWriter").Value;
+            if (proxy != null)
+            {
+                WrapConsoleWriterProxy(proxy);
+            }
+        }
+
+        internal static void TryWrapActiveConsoleOutProxy()
+        {
+            if (Console.Out is ConsoleWriterProxy proxy)
+            {
+                WrapConsoleWriterProxy(proxy);
+            }
+        }
+
+        private static void WrapConsoleWriterProxy(ConsoleWriterProxy proxy)
+        {
+            Traverse proxyTraverse = Traverse.Create(proxy);
+            StreamWriter? customWriter = proxyTraverse.Field<StreamWriter>("customWriter").Value;
+            if (customWriter != null && customWriter is not FilteringStreamWriter)
+            {
+                redirectorStdoutWriter = new FilteringStreamWriter(customWriter.BaseStream, customWriter.Encoding)
+                {
+                    Enabled = IsEnabled
+                };
+                proxyTraverse.Field("customWriter").SetValue(redirectorStdoutWriter);
+            }
+            else if (customWriter is FilteringStreamWriter existingStdout)
+            {
+                redirectorStdoutWriter = existingStdout;
+            }
+
+            TextWriter? defaultWriter = proxyTraverse.Field<TextWriter>("defaultConsoleWriter").Value;
+            if (defaultWriter != null && defaultWriter is not FilteredConsoleWriter)
+            {
+                FilteredConsoleWriter wrapped = new FilteredConsoleWriter(defaultWriter);
+                if (lastApplied.HasValue)
+                {
+                    wrapped.Enabled = lastApplied.Value;
+                }
+
+                proxyTraverse.Field("defaultConsoleWriter").SetValue(wrapped);
+            }
         }
 
         public static void TryApplyEarlyFromConfigFile()
@@ -337,30 +317,24 @@ namespace Rocket.Unturned.Utils
             harmony = new Harmony(HarmonyId);
             harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteLinePatch)).Patch();
             harmony.CreateClassProcessor(typeof(ConsoleWriterProxyWriteCharPatch)).Patch();
-
-            MethodInfo? postfix = AccessTools.Method(typeof(UnityConsoleWarningFilter), nameof(ConsoleOutputRedirectorPostfix));
-            MethodInfo? target = AccessTools.Method(typeof(ConsoleOutputRedirector), nameof(ConsoleOutputRedirector.enable));
-            if (postfix != null && target != null)
-            {
-                harmony.Patch(target, postfix: new HarmonyMethod(postfix));
-            }
-        }
-
-        private static void ConsoleOutputRedirectorPostfix()
-        {
-            EnsureConsoleStreamsWrapped();
+            harmony.CreateClassProcessor(typeof(ConsoleOutputRedirectorEnablePatch)).Patch();
         }
 
         private static void Apply(bool enabled)
         {
             InstallLogHandler();
             EnsureConsoleStreamsWrapped();
+            TryWrapActiveConsoleOutProxy();
 
             bool stateChanged = !lastApplied.HasValue || lastApplied.Value != enabled;
             lastApplied = enabled;
             handler!.Enabled = enabled;
             stdoutWriter!.Enabled = enabled;
             stderrWriter!.Enabled = enabled;
+            if (redirectorStdoutWriter != null)
+            {
+                redirectorStdoutWriter.Enabled = enabled;
+            }
 
             if (enabled && stateChanged && !loggedEnabledMessage)
             {
