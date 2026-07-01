@@ -141,7 +141,7 @@ namespace Rocket.Unturned.Utils
                 return;
             }
 
-            foreach (char character in value)
+            foreach (char character in value!)
             {
                 Write(character);
             }
