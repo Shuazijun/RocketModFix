@@ -27,10 +27,21 @@ namespace Rocket.Unturned.Serialisation
         public bool EnableUnturnedPlayerColorFromPriorityGroup;
 
         /// <summary>
-        /// When true, suppresses Unity shader / null-GPU noise in dedicated server logs (-batchmode -nographics).
+        /// When true, suppresses Unity Log/Warning output in the dedicated server console.
+        /// Error, Assert, and Exception levels are always kept.
+        /// </summary>
+        [XmlElement("SuppressUnityConsoleWarnings")]
+        public bool SuppressUnityConsoleWarnings = true;
+
+        /// <summary>
+        /// Legacy config key. Maps to <see cref="SuppressUnityConsoleWarnings"/>.
         /// </summary>
         [XmlElement("SuppressHeadlessGraphicsLogs")]
-        public bool SuppressHeadlessGraphicsLogs = false;
+        public bool SuppressHeadlessGraphicsLogs
+        {
+            get => SuppressUnityConsoleWarnings;
+            set => SuppressUnityConsoleWarnings = value;
+        }
 
         public void LoadDefaults()
         {
@@ -42,7 +53,7 @@ namespace Rocket.Unturned.Serialisation
             MaxSpawnAmount = 10;
             EnableVehicleBlacklist = false;
             EnableUnturnedPlayerColorFromPriorityGroup = false;
-            SuppressHeadlessGraphicsLogs = false;
+            SuppressUnityConsoleWarnings = true;
         }
     }
 }

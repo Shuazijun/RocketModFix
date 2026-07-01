@@ -122,7 +122,7 @@ namespace Rocket.Unturned.Utils
             if (moduleSet.Contains("unturned"))
             {
                 U.Settings.Load();
-                HeadlessLogFilter.ApplyFromSettings(U.Settings.Instance.SuppressHeadlessGraphicsLogs);
+                UnityConsoleWarningFilter.ApplyFromSettings(U.Settings.Instance.SuppressUnityConsoleWarnings);
                 reloaded.Add("unturned");
             }
 
