@@ -26,23 +26,6 @@ namespace Rocket.Unturned.Serialisation
 
         public bool EnableUnturnedPlayerColorFromPriorityGroup;
 
-        /// <summary>
-        /// When true, suppresses all Unity console output (Log / Warning / Error / Assert / Exception).
-        /// CommandWindow and Rocket.log are unaffected.
-        /// </summary>
-        [XmlElement("SuppressUnityConsoleWarnings")]
-        public bool SuppressUnityConsoleWarnings = true;
-
-        /// <summary>
-        /// Legacy config key alias. Not serialized — use SuppressUnityConsoleWarnings in XML.
-        /// </summary>
-        [XmlIgnore]
-        public bool SuppressHeadlessGraphicsLogs
-        {
-            get => SuppressUnityConsoleWarnings;
-            set => SuppressUnityConsoleWarnings = value;
-        }
-
         public void LoadDefaults()
         {
             CharacterNameValidation = true;
@@ -53,7 +36,6 @@ namespace Rocket.Unturned.Serialisation
             MaxSpawnAmount = 10;
             EnableVehicleBlacklist = false;
             EnableUnturnedPlayerColorFromPriorityGroup = false;
-            SuppressUnityConsoleWarnings = true;
         }
     }
 }

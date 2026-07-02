@@ -5,14 +5,14 @@
 
 .EXAMPLE
   .\build-release.ps1 -Runtime win-x64 -Zip
-  .\build-release.ps1 -Runtime linux-x64 -Version 4.25.9.3 -Zip
+  .\build-release.ps1 -Runtime linux-x64 -Version 4.25.10 -Zip
   .\build-release.ps1 -Runtime win-x64 -DeployTo "F:\SteamLibrary\steamapps\common\Unturned\Modules"
   .\build-release.ps1 -DeployU3DSTest
     构建 win-x64、部署到本机 U3DS Modules，并同步测试启动脚本
 #>
 [CmdletBinding()]
 param(
-    [string]$Version = "4.25.9.3",
+    [string]$Version = "4.25.10",
     [ValidateSet("win-x64", "linux-x64")]
     [string]$Runtime = "win-x64",
     [ValidateSet("Both", "Unturned", "AutoInstaller")]

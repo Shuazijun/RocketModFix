@@ -124,8 +124,6 @@ namespace Rocket.Unturned.Utils
             if (moduleSet.Contains("unturned"))
             {
                 U.Settings.Load();
-                UnturnedSettingsConfigHelper.NormalizeSuppressUnityConsoleWarnings(U.Settings.Instance);
-                UnityConsoleWarningFilter.ApplyFromSettings(U.Settings.Instance.SuppressUnityConsoleWarnings);
                 reloaded.Add("unturned");
             }
 

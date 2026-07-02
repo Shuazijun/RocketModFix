@@ -33,11 +33,6 @@ namespace Rocket.Unturned
 {
     public class U : MonoBehaviour, IRocketImplementation, IModuleNexus
     {
-        static U()
-        {
-            UnityConsoleWarningFilter.Install();
-        }
-
         private static GameObject rocketGameObject = null!;
         public static U Instance = null!;
 
@@ -287,8 +282,6 @@ namespace Rocket.Unturned
             CommandWindow.Log("Rocket Unturned v" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + " for Unturned v" + Provider.APP_VERSION);
 
             CommandConsoleTimestamp.Install();
-            UnityConsoleWarningFilter.Install();
-            UnityConsoleWarningFilter.TryApplyEarlyFromConfigFile();
 
             IPluginAdvertising pluginAdvertising = PluginAdvertising.Get();
             pluginAdvertising.PluginFrameworkName = "rocket";
@@ -322,9 +315,6 @@ namespace Rocket.Unturned
                 WarpSettings = new XMLFileAsset<WarpSettings>(Environment.WarpsSettingsFile);
                 AutoSaveSettings = new XMLFileAsset<AutoSaveSettings>(Environment.AutoSaveSettingsFile);
                 CommandAliasResolver.Load(CommandAliasSettings.Instance);
-                UnturnedSettingsConfigHelper.NormalizeSuppressUnityConsoleWarnings(Settings.Instance);
-                UnityConsoleWarningFilter.ApplyFromSettings(Settings.Instance.SuppressUnityConsoleWarnings);
-                UnityConsoleWarningFilter.TryLogEnabledMessage();
                 Events = gameObject.TryAddComponent<UnturnedEvents>();
                 ApplyTeleportServices();
                 string languageCode = LanguageCodeHelper.Normalize(Core.R.Settings.Instance.LanguageCode);

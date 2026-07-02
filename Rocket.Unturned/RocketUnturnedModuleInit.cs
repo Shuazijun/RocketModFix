@@ -8,8 +8,7 @@ namespace Rocket.Unturned
         [ModuleInitializer]
         internal static void InitializeModule()
         {
-            ModuleRuntimeDiagnostics.ModuleInitializerExecuted = true;
-            UnityConsoleWarningFilter.Install();
+            CommandConsoleTimestamp.Install();
         }
     }
 }
